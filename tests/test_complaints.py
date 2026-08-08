@@ -245,3 +245,70 @@ async def test_soft_delete_hides_the_complaint_but_keeps_the_row(
 
     await session.refresh(complaint)
     assert complaint.is_deleted is True
+
+
+async def test_setting_status_assigned_picks_an_owner(client, session, auth_headers):
+    """A triager choosing "assigned" from a dropdown must not create an ownerless case.
+
+    Reported from the deployed admin console: the status flipped to `assigned` and the
+    assignee column stayed empty, which is not a state the system should be able to
+    reach — `assigned` means a named person is accountable for it.
+    """
+    from app.models.department import Department
+    from app.models.user import Role
+    from app.repositories.user_repo import UserRepository
+    from app.services.auth_service import AuthService
+
+    department = Department(name="Roads & Infrastructure", slug="roads", categories=["road"])
+    session.add(department)
+    await session.flush()
+
+    await AuthService(UserRepository(session)).ensure_user(
+        email="picker.staff@civic.gov.pk",
+        password="Staff@123",
+        full_name="Picker Staff",
+        role=Role.STAFF,
+        department_id=department.id,
+    )
+    complaint = await make_complaint(
+        session, category=Category.ROAD, reference_code="CIV-ASN001", status=Status.OPEN
+    )
+    complaint.department_id = department.id
+    await session.commit()
+
+    response = await client.patch(
+        f"/api/v1/complaints/{complaint.id}",
+        json={"status": "assigned"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["status"] == "assigned"
+    assert body["assignee"] is not None, "status=assigned must come with an owner"
+    assert body["assignee"]["full_name"] == "Picker Staff"
+    assert body["assigned_at"] is not None
+
+
+async def test_status_assigned_without_available_staff_still_succeeds(
+    client, session, auth_headers
+):
+    """No available staff is a real situation, not an error — but it must be visible."""
+    complaint = await make_complaint(
+        session, category=Category.ROAD, reference_code="CIV-ASN002", status=Status.OPEN
+    )
+    await session.commit()
+
+    response = await client.patch(
+        f"/api/v1/complaints/{complaint.id}",
+        json={"status": "assigned"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["assignee"] is None
+
+    detail = await client.get(f"/api/v1/complaints/{complaint.id}", headers=auth_headers)
+    timeline = detail.json()["timeline"]
+    # One PATCH must produce exactly one timeline row, and it should say why nobody
+    # is named on it rather than leaving that silently blank.
+    assert [event["to_status"] for event in timeline] == ["assigned"]
+    assert "No staff member was available" in (timeline[0]["note"] or "")

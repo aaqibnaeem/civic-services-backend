@@ -337,11 +337,36 @@ class ComplaintManager:
                 complaint, payload.assignee_id, actor=actor, note=payload.note
             )
 
+        status_note = payload.note
+        if (
+            payload.status is Status.ASSIGNED
+            and not payload.assignee_provided
+            and complaint.assignee_id is None
+            and self._assignments is not None
+        ):
+            # "Assigned to nobody" is not a real state — it is what a triager gets if
+            # they set the status from a dropdown and the system asks no follow-up
+            # question. Pick an owner with the same rule the AI pipeline uses, which
+            # also performs the open -> assigned transition, so the status block below
+            # then finds nothing left to change.
+            chosen = await self._assignments.choose_assignee(complaint)
+            if chosen is not None:
+                self._apply_assignee(complaint, chosen, actor=actor, note=payload.note)
+            else:
+                # Let the status change through anyway — the complaint really is with a
+                # department — but explain the empty assignee. The explanation rides on
+                # the transition's own note rather than a second event, because two rows
+                # for one PATCH makes the timeline read like it happened twice.
+                log.info("assignment.none_available", complaint_id=complaint.id)
+                status_note = " ".join(
+                    filter(None, [payload.note, "No staff member was available to take it."])
+                )
+
         previous_status: Status | None = None
         if payload.status is not None and payload.status != complaint.status:
             self._assert_transition_allowed(complaint.status, payload.status)
             previous_status = complaint.status
-            self._apply_status(complaint, payload.status, note=payload.note, actor=actor)
+            self._apply_status(complaint, payload.status, note=status_note, actor=actor)
         elif payload.note and not payload.assignee_provided:
             # Note-only edit still deserves an audit row. Skipped when an assignment
             # already ran: that branch folded the note into its own event, and two
