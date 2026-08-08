@@ -3,9 +3,9 @@
 FastAPI + SQLAlchemy 2.0 (async) backend for the AI Smart Civic Services platform:
 citizen complaint intake, AI triage, department routing, and civic analytics.
 
-The HTTP surface is defined by [`../docs/CONTRACT.md`](../docs/CONTRACT.md), which is
-frozen. Field names, enum wire values, endpoint paths and the error envelope all come
-from there.
+The HTTP surface is defined by [`docs/project/CONTRACT.md`](docs/project/CONTRACT.md),
+which is frozen. Field names, enum wire values, endpoint paths and the error envelope
+all come from there.
 
 ---
 
@@ -99,7 +99,7 @@ the codebase reads the environment.
 | `AI_TIMEOUT_SECONDS` | `25` | hard cap for `analyze-preview` (CONTRACT §5.2) |
 | `AI_MAX_RETRIES` | `3` | |
 | `GEMINI_API_KEY` | empty | optional secondary provider |
-| `ML_MODEL_PATH` | `ml/artifacts/classifier.joblib` | scikit-learn artifact |
+| `ML_MODEL_PATH` | `ml/artifacts/model.joblib` | scikit-learn artifact |
 | `SEED_ON_STARTUP` | `false` | seeds only when the complaints table is empty |
 | `ADMIN_EMAIL` | `admin@civic.gov.pk` | bootstrap admin |
 | `ADMIN_PASSWORD` | `Admin@123` | change in production |
@@ -133,6 +133,7 @@ The full write-up for this hackathon submission lives in [`docs/`](docs/):
 
 | Document | What it covers |
 |---|---|
+| [Demo & presentation guide](docs/project/DEMO_GUIDE.md) | How to test it, how to present it, and answers to the likely questions |
 | [Project overview](docs/project/OVERVIEW.md) | The civic problem, features, and how the two repos fit together |
 | [Architecture](docs/project/ARCHITECTURE.md) | System, sequence and class diagrams — exactly where the AI sits |
 | [AI testing evidence](docs/AI_TESTING_EVIDENCE.md) | 40 hand-written complaints through all three tiers, with limitations |
