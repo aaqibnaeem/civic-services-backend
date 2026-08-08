@@ -60,6 +60,34 @@ def test_normalize_database_url_rejects_garbage():
         normalize_database_url("not-a-url")
 
 
+@pytest.mark.parametrize(
+    "raw, expected",
+    [
+        # The exact value that took the first Render deploy down: a single bare
+        # origin is not valid JSON, and pydantic-settings decodes complex fields
+        # in the env source before any validator runs.
+        ("https://civic-services-frontend.vercel.app", ["https://civic-services-frontend.vercel.app"]),
+        ("https://a.vercel.app, https://b.com", ["https://a.vercel.app", "https://b.com"]),
+        ("https://a.vercel.app,", ["https://a.vercel.app"]),
+        ('["https://a.vercel.app","https://b.com"]', ["https://a.vercel.app", "https://b.com"]),
+        ("", []),
+    ],
+)
+def test_cors_origins_accepts_env_friendly_values(monkeypatch, raw, expected):
+    from app.core.config import Settings
+
+    monkeypatch.setenv("CORS_ORIGINS", raw)
+    assert expected == Settings(_env_file=None).CORS_ORIGINS
+
+
+def test_cors_origins_rejects_malformed_json(monkeypatch):
+    from app.core.config import Settings
+
+    monkeypatch.setenv("CORS_ORIGINS", "[not valid json")
+    with pytest.raises(ValueError):
+        Settings(_env_file=None)
+
+
 # ================================================================ create + track
 async def test_create_complaint_then_track_by_reference(client, complaint_payload):
     created = await client.post("/api/v1/complaints", json=complaint_payload)

@@ -8,10 +8,12 @@ agents (AI, analytics, ML) build against — do not rename them.
 
 from __future__ import annotations
 
+import json
 from functools import lru_cache
+from typing import Annotated
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 # Origins the SPA runs on during development. Always allowed, on top of CORS_ORIGINS.
 DEFAULT_CORS_ORIGINS: tuple[str, ...] = (
@@ -52,7 +54,13 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./civic.db"
 
     # --- cors ----------------------------------------------------------------
-    CORS_ORIGINS: list[str] = Field(default_factory=list)
+    # `NoDecode` is load-bearing. For any complex field (list/dict/set),
+    # pydantic-settings JSON-decodes the raw env var inside the settings *source*,
+    # which runs before field validators — so `CORS_ORIGINS=https://foo.vercel.app`
+    # raised a JSONDecodeError and killed the app at import time, before
+    # `_split_origins` below ever saw it. NoDecode hands the raw string to the
+    # validator instead.
+    CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
     # --- ai providers --------------------------------------------------------
     DEEPSEEK_API_KEY: str = ""
@@ -77,13 +85,22 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _split_origins(cls, value: object) -> object:
-        """Accept ``a,b,c`` (env-friendly) as well as a real JSON list."""
+        """Accept ``a,b,c`` (env-friendly) as well as a real JSON list.
+
+        With ``NoDecode`` on the field, nothing else will parse JSON for us, so
+        this validator has to handle both shapes itself.
+        """
         if value is None or value == "":
             return []
         if isinstance(value, str):
             raw = value.strip()
-            if raw.startswith("["):  # JSON list, let pydantic handle it
-                return raw
+            if raw.startswith("["):
+                try:
+                    return json.loads(raw)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(
+                        f"CORS_ORIGINS looks like JSON but does not parse: {exc}"
+                    ) from exc
             return [item.strip() for item in raw.split(",") if item.strip()]
         return value
 
