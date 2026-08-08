@@ -127,6 +127,23 @@ So paste the URL exactly as Neon gives it. This is unit-tested in
 
 ---
 
+## Project documentation
+
+The full write-up for this hackathon submission lives in [`docs/`](docs/):
+
+| Document | What it covers |
+|---|---|
+| [Project overview](docs/project/OVERVIEW.md) | The civic problem, features, and how the two repos fit together |
+| [Architecture](docs/project/ARCHITECTURE.md) | System, sequence and class diagrams — exactly where the AI sits |
+| [AI testing evidence](docs/AI_TESTING_EVIDENCE.md) | 40 hand-written complaints through all three tiers, with limitations |
+| [Model evaluation](ml/artifacts/evaluation.md) | Held-out accuracy, per-class scores, confusion matrices, and why the CV score is worthless |
+| [API contract](docs/project/CONTRACT.md) | The frozen contract both repos were built against |
+| [Build phases](docs/project/PROGRESS.md) | Phase-by-phase plan, decisions log and what integration uncovered |
+
+Frontend repository: <https://github.com/aaqibnaeem/civic-services-frontend>
+
+---
+
 ## Architecture
 
 ```
