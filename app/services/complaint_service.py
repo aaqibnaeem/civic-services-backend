@@ -130,6 +130,7 @@ class ComplaintManager:
             citizen_email=payload.citizen_email,
             image_url=payload.image_url,
             ai_status=AIStatus.PENDING,
+            category_locked=payload.category is not None,
         )
 
         if payload.category is not None and self._departments is not None:
@@ -260,6 +261,7 @@ class ComplaintManager:
 
         if payload.category is not None:
             complaint.category = payload.category
+            complaint.category_locked = True  # a re-analysis must not undo this
         if payload.priority is not None:
             complaint.priority = payload.priority
         if payload.department_id is not None:
@@ -424,8 +426,14 @@ class ComplaintManager:
     async def _apply_analysis_to_complaint(
         self, complaint: Complaint, result: AIAnalysisResult
     ) -> None:
-        """Fold a confident analysis into the complaint itself."""
-        complaint.category = result.category
+        """Fold a confident analysis into the complaint itself.
+
+        The category is left alone when a human already chose it. The analyzer's
+        own verdict is still recorded on the ``AIAnalysis`` row, so a disagreement
+        stays visible to staff instead of being resolved silently in the AI's favour.
+        """
+        if not complaint.category_locked:
+            complaint.category = result.category
         complaint.priority = result.priority
         if result.title:
             complaint.title = result.title[:_TITLE_MAX]

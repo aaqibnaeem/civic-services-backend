@@ -169,6 +169,13 @@ class Complaint(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
         index=True,
     )
+    #: True when a human chose the category — the citizen picked it on the submit
+    #: form, or a staff member corrected it later. The AI pipeline stores its own
+    #: opinion in ``ai_analysis`` either way, but it must not overwrite a human's
+    #: choice on the complaint itself.
+    category_locked: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False, server_default="0"
+    )
 
     resolved_at: Mapped[datetime | None] = mapped_column(
         UTCDateTime, nullable=True, index=True

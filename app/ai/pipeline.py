@@ -285,7 +285,7 @@ def _derive_title(summary: str, fallback: str, limit: int = 120) -> str | None:
 
 #: An AI category only overrides a citizen's explicit choice above this confidence.
 #: Below it the citizen is assumed to know their own street better than the model.
-OVERRIDE_CONFIDENCE = 0.70
+# (The analyzer no longer overrides a human category at any confidence.)
 
 
 async def analyze_and_store(complaint_id: str) -> AnalysisResult | None:
@@ -324,12 +324,11 @@ async def analyze_and_store(complaint_id: str) -> AnalysisResult | None:
                 logger.warning("analyze_and_store: no complaint %s", complaint_id)
                 return None
 
-            had_analysis = await repo.get_analysis(complaint_id) is not None
-            # A non-'other' category on a complaint that has never been analysed can
-            # only have come from the citizen's own selection.
-            citizen_category: str | None = None
-            if not had_analysis and complaint.category != Category.OTHER:
-                citizen_category = str(complaint.category)
+            # ``category_locked`` is set whenever a human picked the category — the
+            # citizen on the submit form, or a staff member correcting it later.
+            citizen_category: str | None = (
+                str(complaint.category) if complaint.category_locked else None
+            )
 
             context = {
                 "location_text": complaint.location_text,
@@ -355,16 +354,19 @@ async def analyze_and_store(complaint_id: str) -> AnalysisResult | None:
             if complaint is None:  # deleted mid-flight
                 return result
 
-            # --- category: respect an explicit citizen choice ------------------
+            # --- category: an explicit human choice always wins ------------------
+            # However confident the analyzer is, it does not get to overrule a person
+            # who deliberately picked a category — the submit form offers that override
+            # precisely because the AI is fallible, and silently reversing it would make
+            # the control a lie. The analyzer's own verdict is still on the AIAnalysis
+            # row above, so staff can see the disagreement and act on it.
             final_category = result.category
             if citizen_category and result.category != citizen_category:
-                if result.confidence >= OVERRIDE_CONFIDENCE:
-                    logger.info(
-                        "overriding citizen category %s -> %s (confidence %.2f)",
-                        citizen_category, result.category, result.confidence,
-                    )
-                else:
-                    final_category = citizen_category
+                logger.info(
+                    "keeping human category %s over analyzer's %s (confidence %.2f)",
+                    citizen_category, result.category, result.confidence,
+                )
+                final_category = citizen_category
             complaint.category = Category(final_category)
             complaint.priority = Priority(result.priority)
             if title:

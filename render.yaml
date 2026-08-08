@@ -8,7 +8,6 @@ services:
     runtime: python
     plan: free
     region: oregon
-    rootDir: civic-backend
     # `uv sync --frozen` installs exactly what uv.lock pins — no surprise upgrades.
     buildCommand: |
       pip install --upgrade uv
@@ -51,7 +50,7 @@ services:
       - key: GEMINI_API_KEY
         sync: false
       - key: ML_MODEL_PATH
-        value: ml/artifacts/classifier.joblib
+        value: ml/artifacts/model.joblib
       # Seeds the demo dataset on the first boot against an empty database.
       - key: SEED_ON_STARTUP
         value: "true"
