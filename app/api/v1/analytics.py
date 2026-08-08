@@ -6,7 +6,8 @@ this module — the project spec requires that we "explain what the statistics m
 rather than displaying numbers only", so a payload of bare numbers is treated as a
 defect rather than a minimal implementation.
 
-Auth: everything except ``/analytics/public-summary`` sits behind ``require_admin``.
+Auth: everything except ``/analytics/public-summary`` sits behind ``require_staff``
+(staff or admin) — the dashboard is the service team's tool.
 ``/public-summary`` is deliberately anonymous and deliberately small — aggregate
 counts and category shares only, never a reference code, an area breakdown fine
 enough to identify a household, or anything about an individual complaint.
@@ -61,16 +62,23 @@ def _resolve_session_dependency():
         return _no_session
 
 
-def _resolve_admin_dependency():
-    try:
-        from app.core.deps import require_admin
+def _resolve_console_dependency():
+    """Staff-or-admin, not admin-only.
 
-        return require_admin
+    The dashboard is the service team's tool — understanding which complaints are
+    common, urgent or slow is the whole point of their job. Restricting it to admins
+    locked out exactly the people it was built for. Admin-only is reserved for
+    destructive operations.
+    """
+    try:
+        from app.core.deps import require_staff
+
+        return require_staff
     except Exception:  # pragma: no cover - only during parallel bring-up
         try:
             from app.core.deps import get_current_user
 
-            logger.warning("require_admin unavailable; analytics falling back to get_current_user.")
+            logger.warning("require_staff unavailable; analytics falling back to get_current_user.")
             return get_current_user
         except Exception:
             logger.error(
@@ -85,7 +93,7 @@ def _resolve_admin_dependency():
 
 
 _SESSION_DEP = _resolve_session_dependency()
-_ADMIN_DEP = _resolve_admin_dependency()
+_CONSOLE_DEP = _resolve_console_dependency()
 
 
 def filter_params(
@@ -115,7 +123,7 @@ def _service(session: Any):
 async def overview(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Dashboard header: totals, resolution rate, median resolution time, critical
     backlog, average AI confidence, this week's volume with its week-over-week
@@ -131,7 +139,7 @@ async def overview(
 async def categories(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Absolute, relative and cumulative frequency by category, with the modal
     category called out and a category × status contingency table."""
@@ -146,7 +154,7 @@ async def categories(
 async def priorities(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Priority frequencies plus the full contingency table against category, tested
     for independence with chi-square (expected-frequency assumption reported), and a
@@ -162,7 +170,7 @@ async def priorities(
 async def resolution_times(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """n, mean, median, mode, min/max/range, sample variance and standard deviation
     (ddof=1), Q1/Q2/Q3, IQR, Tukey fences, skewness, kurtosis, coefficient of
@@ -180,7 +188,7 @@ async def trends(
     days: int = Query(90, ge=7, le=365, description="Length of the analysis window in days."),
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Gap-free daily counts (missing days filled with zero so the moving average
     covers real calendar weeks), a 7-day rolling mean, per-category series,
@@ -197,7 +205,7 @@ async def trends(
 async def departments(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Departments compared on medians rather than means, with departments holding
     fewer than five resolved complaints excluded from the fastest/slowest ranking
@@ -213,7 +221,7 @@ async def departments(
 async def areas(
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Complaint volume by area with the dominant category for each, and a hotspot
     flag whose rule (>= 5 complaints and >= 1.5x an even share) is returned alongside
@@ -230,7 +238,7 @@ async def insights(
     limit: int | None = Query(None, ge=1, le=50, description="Cap the number of insights returned."),
     filters: AnalyticsFilters = Depends(filter_params),
     session: Any = Depends(_SESSION_DEP),
-    _user: Any = Depends(_ADMIN_DEP),
+    _user: Any = Depends(_CONSOLE_DEP),
 ) -> Any:
     """Deterministic, rules-based interpretations of every computed statistic, ranked
     critical → warn → info. No language model is involved, so every number in every

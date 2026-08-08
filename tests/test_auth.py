@@ -73,3 +73,41 @@ async def test_me_returns_the_signed_in_user(client, auth_headers):
     response = await client.get("/api/v1/auth/me", headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["email"] == ADMIN_EMAIL
+
+
+# ================================================ role boundaries on the console
+async def test_staff_can_read_analytics_but_cannot_delete(client, session):
+    """The dashboard is the service team's tool, so staff must reach it.
+
+    Analytics was originally guarded by ``require_admin``, which locked out exactly
+    the people it was built for — a staff login got 403 on every dashboard route.
+    Admin-only is reserved for destructive operations.
+    """
+    from app.models.user import Role
+    from app.repositories.user_repo import UserRepository
+    from app.services.auth_service import AuthService
+
+    await AuthService(UserRepository(session)).ensure_user(
+        email="staff@example.gov.pk",
+        password="Staff@123",
+        full_name="Test Staff",
+        role=Role.STAFF,
+    )
+    await session.commit()
+
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "staff@example.gov.pk", "password": "Staff@123"},
+    )
+    assert login.status_code == 200, login.text
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+    for path in ("/api/v1/analytics/overview", "/api/v1/analytics/resolution-times",
+                 "/api/v1/analytics/insights", "/api/v1/complaints"):
+        assert (await client.get(path, headers=headers)).status_code == 200, path
+
+    forbidden = await client.delete(
+        "/api/v1/complaints/00000000-0000-0000-0000-000000000000", headers=headers
+    )
+    assert forbidden.status_code == 403
+    assert forbidden.json()["error"]["code"] == "forbidden"
