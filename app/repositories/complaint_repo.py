@@ -17,7 +17,14 @@ from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.security import generate_reference_code
 from app.models.ai_analysis import AIAnalysis
-from app.models.complaint import PRIORITY_RANK, STATUS_RANK, AIStatus, Complaint, Status
+from app.models.complaint import (
+    ACTIVE_STATUSES,
+    PRIORITY_RANK,
+    STATUS_RANK,
+    AIStatus,
+    Complaint,
+    Status,
+)
 from app.models.status_event import StatusEvent
 
 _MAX_REFERENCE_ATTEMPTS = 12
@@ -71,6 +78,13 @@ class ComplaintRepository:
             clauses.append(Complaint.status.in_(list(statuses)))
         if department_id := getattr(filters, "department_id", None):
             clauses.append(Complaint.department_id == department_id)
+        if assignee_id := getattr(filters, "assignee_id", None):
+            clauses.append(Complaint.assignee_id == assignee_id)
+        if citizen_id := getattr(filters, "citizen_id", None):
+            # The whole isolation guarantee of GET /complaints/mine is this one
+            # predicate: it runs in SQL, so there is no code path that loads a row
+            # belonging to another citizen and then forgets to filter it out.
+            clauses.append(Complaint.citizen_id == citizen_id)
         if area := getattr(filters, "area", None):
             clauses.append(func.lower(Complaint.area) == area.strip().lower())
         if date_from := getattr(filters, "date_from", None):
@@ -175,6 +189,37 @@ class ComplaintRepository:
         if not include_deleted:
             stmt = stmt.where(Complaint.is_deleted.is_(False))
         return int((await self.session.execute(stmt)).scalar_one())
+
+    async def workload_by_assignee(
+        self, user_ids: list[str] | None = None
+    ) -> dict[str, tuple[int, int]]:
+        """``{user_id: (active_count, summed_priority_weight)}`` — the assignment rule's input.
+
+        Both numbers are aggregated in SQL over the *active* statuses only, so a
+        staff member who has closed fifty cases looks exactly as free as one who has
+        closed none. Users with no active work simply do not appear in the mapping;
+        callers treat a miss as ``(0, 0)``.
+        """
+        weight = case(PRIORITY_RANK, value=Complaint.priority, else_=0)
+        stmt = (
+            select(
+                Complaint.assignee_id,
+                func.count(),
+                func.coalesce(func.sum(weight), 0),
+            )
+            .where(
+                Complaint.is_deleted.is_(False),
+                Complaint.assignee_id.is_not(None),
+                Complaint.status.in_(ACTIVE_STATUSES),
+            )
+            .group_by(Complaint.assignee_id)
+        )
+        if user_ids is not None:
+            if not user_ids:
+                return {}
+            stmt = stmt.where(Complaint.assignee_id.in_(user_ids))
+        rows = (await self.session.execute(stmt)).all()
+        return {row[0]: (int(row[1]), int(row[2])) for row in rows}
 
     async def count_open_by_department(self) -> dict[str, int]:
         """`{department_id: open_complaint_count}` for the departments endpoint."""

@@ -51,6 +51,17 @@ def _request_id(request: Request) -> str:
     return getattr(request.state, "request_id", "-")
 
 
+#: Pydantic wraps ``ValueError`` messages from custom validators with this prefix.
+_PYDANTIC_VALUE_ERROR_PREFIX = "Value error, "
+
+
+def _clean_message(message: str) -> str:
+    """Strip pydantic's internal prefix so the text is safe to show a user."""
+    if message.startswith(_PYDANTIC_VALUE_ERROR_PREFIX):
+        return message[len(_PYDANTIC_VALUE_ERROR_PREFIX) :]
+    return message
+
+
 def _envelope(
     *, code: str, message: str, request_id: str, details: list[dict] | None = None
 ) -> dict:
@@ -212,7 +223,10 @@ def create_app() -> FastAPI:
         details = [
             {
                 "field": ".".join(str(part) for part in error.get("loc", ())[1:]) or None,
-                "issue": error.get("msg", "invalid value"),
+                # Pydantic prefixes anything raised from a custom validator with
+                # "Value error, ". Our validators write sentences meant to be shown
+                # to a citizen, so the prefix is stripped rather than rendered.
+                "issue": _clean_message(error.get("msg", "invalid value")),
             }
             for error in exc.errors()
         ]

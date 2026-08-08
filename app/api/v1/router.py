@@ -11,7 +11,7 @@ from importlib import import_module
 
 from fastapi import APIRouter
 
-from app.api.v1 import auth, complaints, departments
+from app.api.v1 import auth, complaints, departments, staff
 from app.core.logging_config import get_logger
 
 log = get_logger(__name__)
@@ -22,6 +22,7 @@ api_router = APIRouter()
 api_router.include_router(auth.router)
 api_router.include_router(complaints.router)
 api_router.include_router(departments.router)
+api_router.include_router(staff.router)
 
 
 # --- deliberate optional-module registration ----------------------------------

@@ -79,6 +79,12 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@civic.gov.pk"
     ADMIN_PASSWORD: str = "Admin@123"
 
+    # --- citizen accounts ----------------------------------------------------
+    # Password handed to a citizen the first time their email files a complaint
+    # (CONTRACT §4b). Only ever used when *creating* an account — an existing
+    # account's password is never touched, so re-using an email cannot reset it.
+    CITIZEN_DEFAULT_PASSWORD: str = "civic@123"
+
     # --- storage -------------------------------------------------------------
     UPLOAD_DIR: str = "uploads"
 

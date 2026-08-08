@@ -25,6 +25,7 @@ from app.models.user import Role, User
 from app.repositories.complaint_repo import ComplaintRepository
 from app.repositories.department_repo import DepartmentRepository
 from app.repositories.user_repo import UserRepository
+from app.services.assignment_service import AssignmentService
 from app.services.auth_service import AuthService
 from app.services.complaint_service import ComplaintManager
 from app.services.department_service import DepartmentService
@@ -81,22 +82,39 @@ def get_department_service(
 DepartmentServiceDep = Annotated[DepartmentService, Depends(get_department_service)]
 
 
-def get_complaint_manager(
-    complaint_repo: ComplaintRepoDep,
-    departments: DepartmentServiceDep,
-    notifier: NotifierDep,
-) -> ComplaintManager:
-    return ComplaintManager(complaint_repo, departments=departments, notifier=notifier)
-
-
-ComplaintManagerDep = Annotated[ComplaintManager, Depends(get_complaint_manager)]
-
-
 def get_auth_service(user_repo: UserRepoDep) -> AuthService:
     return AuthService(user_repo)
 
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+def get_assignment_service(
+    user_repo: UserRepoDep, complaint_repo: ComplaintRepoDep
+) -> AssignmentService:
+    return AssignmentService(user_repo, complaint_repo)
+
+
+AssignmentServiceDep = Annotated[AssignmentService, Depends(get_assignment_service)]
+
+
+def get_complaint_manager(
+    complaint_repo: ComplaintRepoDep,
+    departments: DepartmentServiceDep,
+    notifier: NotifierDep,
+    accounts: AuthServiceDep,
+    assignments: AssignmentServiceDep,
+) -> ComplaintManager:
+    return ComplaintManager(
+        complaint_repo,
+        departments=departments,
+        notifier=notifier,
+        accounts=accounts,
+        assignments=assignments,
+    )
+
+
+ComplaintManagerDep = Annotated[ComplaintManager, Depends(get_complaint_manager)]
 
 
 # ----------------------------------------------------------------------------- auth
@@ -122,11 +140,29 @@ AdminUser = Annotated[User, Depends(require_admin)]
 
 
 async def require_staff(user: CurrentUser) -> User:
-    """Staff-or-admin guard, used by the console endpoints."""
+    """Staff-or-admin guard, used by the console endpoints.
+
+    A ``citizen`` token is rejected here with ``403 forbidden``. Citizens get their
+    own history through ``GET /complaints/mine``; the console list, the analytics
+    and every mutating endpoint stay closed to them.
+    """
     return AuthService.require_role(user, Role.ADMIN, Role.STAFF)
 
 
 StaffUser = Annotated[User, Depends(require_staff)]
+
+
+async def require_citizen(user: CurrentUser) -> User:
+    """Any signed-in account, used by ``GET /complaints/mine``.
+
+    Deliberately not restricted to ``role == citizen``: a staff member who filed a
+    complaint from their own address should still be able to see it. Isolation
+    comes from matching on ``citizen_id``, not from the role check.
+    """
+    return user
+
+
+CitizenUser = Annotated[User, Depends(require_citizen)]
 
 
 def get_request_id(request: Request) -> str:
@@ -138,7 +174,9 @@ RequestIdDep = Annotated[str, Depends(get_request_id)]
 
 __all__ = [
     "AdminUser",
+    "AssignmentServiceDep",
     "AuthServiceDep",
+    "CitizenUser",
     "ComplaintManagerDep",
     "ComplaintRepoDep",
     "CurrentUser",
@@ -153,5 +191,6 @@ __all__ = [
     "UserRepoDep",
     "get_current_user",
     "require_admin",
+    "require_citizen",
     "require_staff",
 ]

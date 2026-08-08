@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from app.models.ai_analysis import AIAnalysis
     from app.models.department import Department
     from app.models.status_event import StatusEvent
+    from app.models.user import User
 
 
 class Category(StrEnum):
@@ -80,6 +81,10 @@ STATUS_RANK: dict[Status, int] = {
     Status.RESOLVED: 4,
     Status.REJECTED: 5,
 }
+
+#: The statuses that still cost a staff member time. Everything the assignment
+#: rule calls "workload" is counted over exactly this set (CONTRACT §4b).
+ACTIVE_STATUSES: tuple[Status, ...] = (Status.OPEN, Status.ASSIGNED, Status.IN_PROGRESS)
 
 
 class hours_between(GenericFunction):  # noqa: N801 - SQL function names are lowercase
@@ -163,6 +168,19 @@ class Complaint(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         String(36), ForeignKey("complaints.id", ondelete="SET NULL"), nullable=True, index=True
     )
 
+    #: The citizen account this complaint belongs to (CONTRACT §4b). Nullable
+    #: because the ~800 seeded rows predate citizen accounts; every complaint filed
+    #: through the API from now on has one.
+    citizen_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    #: The staff member carrying this complaint. Set by ``AssignmentService`` or by
+    #: a human via ``PATCH /complaints/{id}``.
+    assignee_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    assigned_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
+
     ai_status: Mapped[AIStatus] = mapped_column(
         enum_column(AIStatus, name="ai_status_enum"),
         default=AIStatus.PENDING,
@@ -204,6 +222,14 @@ class Complaint(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     duplicate_of: Mapped[Complaint | None] = relationship(
         "Complaint", remote_side="Complaint.id", lazy="noload"
+    )
+    # Two foreign keys point at ``users``, so the join condition has to be spelled
+    # out — SQLAlchemy cannot guess which one each relationship means.
+    assignee: Mapped[User | None] = relationship(
+        "User", foreign_keys="Complaint.assignee_id", lazy="selectin"
+    )
+    citizen: Mapped[User | None] = relationship(
+        "User", foreign_keys="Complaint.citizen_id", lazy="noload"
     )
 
     def __repr__(self) -> str:  # pragma: no cover - debugging aid

@@ -27,7 +27,9 @@ from app.schemas.common import (
     Status,
 )
 from app.schemas.complaint import (
+    AssigneeRef,
     ComplaintCreate,
+    ComplaintCreated,
     ComplaintDetail,
     ComplaintFilters,
     ComplaintRead,
@@ -35,7 +37,15 @@ from app.schemas.complaint import (
     StatusEventRead,
 )
 from app.schemas.department import DepartmentCreate, DepartmentRead, DepartmentRef
-from app.schemas.user import LoginRequest, TokenResponse, UserCreate, UserRead
+from app.schemas.user import (
+    AccountRead,
+    LoginRequest,
+    StaffRead,
+    TokenResponse,
+    UserCreate,
+    UserRead,
+    UserUpdate,
+)
 
 __all__ = [
     "AIAnalysisRead",
@@ -43,9 +53,12 @@ __all__ = [
     "AIHealthResponse",
     "AISource",
     "AIStatus",
+    "AccountRead",
     "AnalyzePreviewRequest",
+    "AssigneeRef",
     "Category",
     "ComplaintCreate",
+    "ComplaintCreated",
     "ComplaintDetail",
     "ComplaintFilters",
     "ComplaintRead",
@@ -68,9 +81,11 @@ __all__ = [
     "Sentiment",
     "SortField",
     "SortOrder",
+    "StaffRead",
     "Status",
     "StatusEventRead",
     "TokenResponse",
     "UserCreate",
     "UserRead",
+    "UserUpdate",
 ]

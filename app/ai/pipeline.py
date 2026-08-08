@@ -396,11 +396,47 @@ async def analyze_and_store(complaint_id: str) -> AnalysisResult | None:
                 complaint.reference_code, result.source, complaint.category,
                 complaint.priority, result.confidence, result.latency_ms,
             )
+
+            # --- auto-assignment ----------------------------------------------
+            # Runs last, after the department is settled and the analysis is
+            # already committed, and cannot fail this function: AI enrichment
+            # succeeding must never depend on there being staff to hand the work to.
+            await _auto_assign_quietly(complaint_id, session, departments)
             return result
     except Exception:  # noqa: BLE001 - background task: log and mark failed, never raise
         logger.exception("analyze_and_store failed for %s", complaint_id)
         await _mark_failed(complaint_id)
         return result
+
+
+async def _auto_assign_quietly(complaint_id: str, session: Any, departments: Any) -> None:
+    """Hand the complaint to a staff member, swallowing every failure.
+
+    Called at the tail of :func:`analyze_and_store`, once the department routing has
+    been committed — the assignment rule reads ``complaint.department_id``, so it
+    has to run after routing, not alongside it.
+
+    Nothing in here may propagate. Auto-assignment is a convenience layered on top
+    of triage: if the staff table is empty, the rule throws, or the rows are locked,
+    the complaint must still come out of the pipeline correctly categorised, routed
+    and marked ``ai_status="complete"`` — just unassigned, for a human to pick up.
+    """
+    try:
+        from app.repositories.complaint_repo import ComplaintRepository
+        from app.repositories.user_repo import UserRepository
+        from app.services.assignment_service import AssignmentService
+        from app.services.complaint_service import ComplaintManager
+
+        repo = ComplaintRepository(session)
+        assignments = AssignmentService(UserRepository(session), repo)
+        manager = ComplaintManager(repo, departments=departments, assignments=assignments)
+        await manager.auto_assign(complaint_id, actor="system:auto-assign")
+    except Exception:  # noqa: BLE001 - assignment must never break AI enrichment
+        logger.exception("auto-assignment failed for %s; leaving it unassigned", complaint_id)
+        try:
+            await session.rollback()  # leave the caller's session usable
+        except Exception:  # noqa: BLE001
+            logger.exception("could not roll back after a failed auto-assignment")
 
 
 async def _mark_failed(complaint_id: str) -> None:

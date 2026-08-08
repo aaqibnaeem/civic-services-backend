@@ -9,13 +9,16 @@ a layer.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from app.core.errors import IllegalStatusTransition, NotFoundError, ValidationError
 from app.core.logging_config import get_logger
+from app.db.base import utcnow
 from app.models.ai_analysis import AIAnalysis
 from app.models.complaint import AIStatus, Category, Complaint, Priority, Status
 from app.models.status_event import StatusEvent
+from app.models.user import User
 from app.repositories.complaint_repo import ComplaintRepository
 from app.schemas.ai import AIAnalysisResult
 from app.schemas.common import Page
@@ -26,13 +29,31 @@ from app.schemas.complaint import (
     ComplaintRead,
     ComplaintUpdate,
 )
+from app.schemas.user import AccountRead
 from app.services.department_service import DepartmentService
 from app.services.notification_service import NotificationDispatcher, notification_dispatcher
 
 if TYPE_CHECKING:
     from fastapi import BackgroundTasks
 
+    from app.services.assignment_service import AssignmentService
+    from app.services.auth_service import AuthService
+
 log = get_logger(__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class ComplaintSubmission:
+    """What ``POST /complaints`` produced: the row, plus the citizen account behind it.
+
+    The account block is returned separately rather than hung off the complaint
+    because it is *not* part of the complaint — it describes something that
+    happened to a user record, and its ``default_password`` must never be
+    persisted, re-read, or served by any later GET.
+    """
+
+    complaint: Complaint
+    account: AccountRead
 
 #: The complaint status state machine. ``resolved`` is terminal on purpose — a
 #: closed case must not silently reopen, because that would corrupt every
@@ -88,10 +109,14 @@ class ComplaintManager:
         *,
         departments: DepartmentService | None = None,
         notifier: NotificationDispatcher | None = None,
+        accounts: AuthService | None = None,
+        assignments: AssignmentService | None = None,
     ) -> None:
         self._repo = repo
         self._departments = departments
         self._notifier = notifier or notification_dispatcher
+        self._accounts = accounts
+        self._assignments = assignments
 
     # ================================================================== creation
     async def create(
@@ -99,17 +124,22 @@ class ComplaintManager:
         payload: ComplaintCreate,
         *,
         background_tasks: BackgroundTasks | None = None,
-    ) -> Complaint:
-        """Persist a complaint and schedule AI enrichment.
+    ) -> ComplaintSubmission:
+        """Persist a complaint, link it to a citizen account, schedule AI enrichment.
 
         CONTRACT §5.1: this never blocks on the LLM. The row is committed with
         ``ai_status="pending"`` and the analysis happens after the response is sent.
+        CONTRACT §4b: the submitted email is turned into a ``citizen`` account
+        (created on first use, reused afterwards) and the complaint is linked to it,
+        which is what makes ``GET /complaints/mine`` possible without a signup form.
         """
         if not payload.consent:
             raise ValidationError(
                 "Consent is required to file a complaint.",
                 details=[{"field": "consent", "issue": "must be true"}],
             )
+
+        citizen, is_new_account = await self._resolve_citizen(payload)
 
         reference_code = await self._repo.allocate_reference_code()
         category = payload.category or Category.OTHER
@@ -128,6 +158,7 @@ class ComplaintManager:
             citizen_name=payload.citizen_name,
             citizen_phone=payload.citizen_phone,
             citizen_email=payload.citizen_email,
+            citizen_id=citizen.id if citizen is not None else None,
             image_url=payload.image_url,
             ai_status=AIStatus.PENDING,
             category_locked=payload.category is not None,
@@ -156,11 +187,44 @@ class ComplaintManager:
             complaint_id=complaint.id,
             reference_code=complaint.reference_code,
             area=complaint.area,
+            citizen_id=complaint.citizen_id,
+            new_account=is_new_account,
         )
 
         if background_tasks is not None:
             self.schedule_enrichment(background_tasks, complaint.id)
-        return complaint
+
+        from app.core.config import settings  # noqa: PLC0415 - avoids an import cycle
+
+        return ComplaintSubmission(
+            complaint=complaint,
+            account=AccountRead(
+                email=payload.citizen_email,
+                is_new=is_new_account,
+                # Only ever populated for an account this request created.
+                default_password=settings.CITIZEN_DEFAULT_PASSWORD if is_new_account else None,
+            ),
+        )
+
+    async def _resolve_citizen(self, payload: ComplaintCreate) -> tuple[User | None, bool]:
+        """Find-or-create the citizen account for the submitted email.
+
+        Returns ``(user, is_new)``. When no ``AuthService`` was wired in — the
+        ``ComplaintManager`` used by the AI pipeline has no need for one — the
+        complaint is still stored, just without an account link. Intake must not
+        fail because of an account-management concern.
+        """
+        if self._accounts is None:
+            return None, False
+        citizen, is_new = await self._accounts.find_or_create_citizen(
+            payload.citizen_email, full_name=payload.citizen_name
+        )
+        if is_new:
+            # The primary key is a Python-side column default, so it only exists
+            # after a flush — and ``citizen.id`` is needed for the FK below. The
+            # surrounding create() still commits everything in one transaction.
+            await self._repo.session.flush()
+        return citizen, is_new
 
     @staticmethod
     def schedule_enrichment(background_tasks: BackgroundTasks, complaint_id: str) -> None:
@@ -266,14 +330,22 @@ class ComplaintManager:
             complaint.priority = payload.priority
         if payload.department_id is not None:
             await self._assign_department(complaint, payload.department_id)
+        if payload.assignee_provided:
+            # ``assignee_provided`` (not ``is not None``) is what makes an explicit
+            # ``"assignee_id": null`` mean *unassign* rather than *leave alone*.
+            await self._set_assignee(
+                complaint, payload.assignee_id, actor=actor, note=payload.note
+            )
 
         previous_status: Status | None = None
         if payload.status is not None and payload.status != complaint.status:
             self._assert_transition_allowed(complaint.status, payload.status)
             previous_status = complaint.status
             self._apply_status(complaint, payload.status, note=payload.note, actor=actor)
-        elif payload.note:
-            # Note-only edit still deserves an audit row.
+        elif payload.note and not payload.assignee_provided:
+            # Note-only edit still deserves an audit row. Skipped when an assignment
+            # already ran: that branch folded the note into its own event, and two
+            # rows for one PATCH makes the timeline read like it happened twice.
             self._repo.add_event(
                 StatusEvent(
                     complaint_id=complaint.id,
@@ -310,6 +382,94 @@ class ComplaintManager:
         await self._repo.session.commit()
         await self._repo.session.refresh(complaint)
         return complaint
+
+    # ================================================================ assignment
+    async def auto_assign(self, complaint_id: str, *, actor: str) -> Complaint:
+        """Run the CONTRACT §4b workload rule and apply its verdict.
+
+        The *decision* belongs to :class:`AssignmentService`; this method only
+        applies it, so the state machine and the timeline stay owned by one object.
+        A complaint whose department has no available staff is left exactly as it
+        was — unassigned, still open, still in its own department's queue.
+        """
+        complaint = await self.get_or_404(complaint_id)
+        if self._assignments is None:  # pragma: no cover - always wired in practice
+            log.warning("assignment.service_missing", complaint_id=complaint_id)
+            return complaint
+
+        assignee = await self._assignments.choose_assignee(complaint)
+        if assignee is None:
+            return complaint
+
+        self._apply_assignee(complaint, assignee, actor=actor)
+        await self._repo.session.commit()
+        await self._repo.session.refresh(complaint)
+        return complaint
+
+    async def _set_assignee(
+        self, complaint: Complaint, assignee_id: str | None, *, actor: str, note: str | None = None
+    ) -> None:
+        """Validate and stage a manual (re)assignment. Does not commit."""
+        if assignee_id is None:
+            self._apply_assignee(complaint, None, actor=actor, note=note)
+            return
+        if self._assignments is None:  # pragma: no cover - always wired in practice
+            raise ValidationError("Assignment is not available in this context.")
+        assignee = await self._assignments.resolve_assignee(complaint, assignee_id)
+        self._apply_assignee(complaint, assignee, actor=actor, note=note)
+
+    def _apply_assignee(
+        self, complaint: Complaint, assignee: User | None, *, actor: str, note: str | None = None
+    ) -> None:
+        """Write the assignee and emit the right timeline row.
+
+        Setting an owner moves ``open -> assigned`` through the same
+        ``_apply_status`` used by every other transition — the state machine is
+        never bypassed. A complaint already past ``open`` keeps its status (a case
+        being worked on does not regress just because it changed hands) and gets a
+        note-only audit row instead. Clearing an owner likewise leaves the status
+        alone: ``assigned`` also means "routed to a department", which is still true.
+        """
+        if assignee is None:
+            complaint.assignee_id = None
+            complaint.assigned_at = None
+            self._repo.add_event(
+                StatusEvent(
+                    complaint_id=complaint.id,
+                    from_status=complaint.status,
+                    to_status=complaint.status,
+                    note=note or "Assignee cleared.",
+                    actor=actor,
+                )
+            )
+            log.info("complaint.unassigned", complaint_id=complaint.id, actor=actor)
+            return
+
+        who = assignee.full_name or assignee.email
+        complaint.assignee_id = assignee.id
+        complaint.assigned_at = utcnow()
+
+        if complaint.status == Status.OPEN:
+            self._assert_transition_allowed(Status.OPEN, Status.ASSIGNED)
+            self._apply_status(
+                complaint, Status.ASSIGNED, note=note or f"Assigned to {who}.", actor=actor
+            )
+        else:
+            self._repo.add_event(
+                StatusEvent(
+                    complaint_id=complaint.id,
+                    from_status=complaint.status,
+                    to_status=complaint.status,
+                    note=note or f"Reassigned to {who}.",
+                    actor=actor,
+                )
+            )
+        log.info(
+            "complaint.assigned",
+            complaint_id=complaint.id,
+            assignee_id=assignee.id,
+            actor=actor,
+        )
 
     async def soft_delete(self, complaint_id: str, *, actor: str) -> None:
         """Admin-only removal. The row stays for audit and analytics continuity."""
@@ -403,8 +563,6 @@ class ComplaintManager:
         previous = complaint.status
         complaint.status = target
         if target == Status.RESOLVED:
-            from app.db.base import utcnow  # noqa: PLC0415 - avoids a module cycle
-
             complaint.resolved_at = utcnow()
         self._repo.add_event(
             StatusEvent(

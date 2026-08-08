@@ -13,7 +13,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, BackgroundTasks, Query, Response
 from fastapi import status as http_status
 
-from app.core.deps import AdminUser, ComplaintManagerDep, StaffUser
+from app.core.deps import AdminUser, CitizenUser, ComplaintManagerDep, StaffUser
 from app.core.errors import AIUnavailableError
 from app.core.logging_config import get_logger
 from app.db.base import utcnow
@@ -28,6 +28,7 @@ from app.schemas.ai import (
 from app.schemas.common import Page
 from app.schemas.complaint import (
     ComplaintCreate,
+    ComplaintCreated,
     ComplaintDetail,
     ComplaintFilters,
     ComplaintRead,
@@ -42,7 +43,7 @@ router = APIRouter(prefix="/complaints", tags=["complaints"])
 # =============================================================== public endpoints
 @router.post(
     "",
-    response_model=ComplaintRead,
+    response_model=ComplaintCreated,
     status_code=http_status.HTTP_201_CREATED,
     summary="File a complaint (public)",
 )
@@ -50,14 +51,19 @@ async def create_complaint(
     payload: ComplaintCreate,
     background_tasks: BackgroundTasks,
     manager: ComplaintManagerDep,
-) -> ComplaintRead:
+) -> ComplaintCreated:
     """Save the complaint and return immediately with ``ai_status="pending"``.
 
     CONTRACT §5.1 — the LLM is never on this request's critical path; enrichment runs
-    in a background task once the response has been flushed.
+    in a background task once the response has been flushed. CONTRACT §4b — the
+    response carries an ``account`` block describing the citizen account behind
+    ``citizen_email``, including the default password *only* when it was just created.
     """
-    complaint = await manager.create(payload, background_tasks=background_tasks)
-    return ComplaintRead.model_validate(complaint)
+    submission = await manager.create(payload, background_tasks=background_tasks)
+    return ComplaintCreated(
+        **ComplaintRead.model_validate(submission.complaint).model_dump(),
+        account=submission.account,
+    )
 
 
 # Declared before ``/{complaint_id}`` so the literal path always wins the match.
@@ -106,16 +112,50 @@ async def track_complaint(reference_code: str, manager: ComplaintManagerDep) -> 
     return ComplaintRead.model_validate(complaint)
 
 
+# Declared before ``/{complaint_id}`` so the literal path always wins the match.
+@router.get(
+    "/mine",
+    response_model=Page[ComplaintRead],
+    summary="My complaints (signed-in citizen)",
+)
+async def my_complaints(
+    user: CitizenUser,
+    manager: ComplaintManagerDep,
+    status: Annotated[list[Status] | None, Query()] = None,
+    sort: Annotated[str, Query(pattern="^(created_at|priority|status|resolution_hours)$")] = "created_at",
+    order: Annotated[str, Query(pattern="^(asc|desc)$")] = "desc",
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> Page[ComplaintRead]:
+    """The caller's own complaints, in the same envelope as ``GET /complaints``.
+
+    ``citizen_id`` is taken from the bearer token and pinned into the SQL filter, so
+    there is no query parameter a caller could use to widen the result set to
+    somebody else's complaints (CONTRACT §4b).
+    """
+    filters = ComplaintFilters(
+        citizen_id=user.id,
+        status=status or [],
+        sort=sort,
+        order=order,
+        page=page,
+        page_size=page_size,
+    )
+    return await manager.list(filters)
+
+
 # ============================================================== admin / staff area
 @router.get("", response_model=Page[ComplaintRead], summary="List complaints (staff)")
 async def list_complaints(
-    _user: StaffUser,
+    user: StaffUser,
     manager: ComplaintManagerDep,
     q: Annotated[str | None, Query(description="Free-text search")] = None,
     category: Annotated[list[Category] | None, Query()] = None,
     priority: Annotated[list[Priority] | None, Query()] = None,
     status: Annotated[list[Status] | None, Query()] = None,
     department_id: Annotated[str | None, Query()] = None,
+    assignee_id: Annotated[str | None, Query()] = None,
+    mine: Annotated[bool, Query(description="Only complaints assigned to the caller")] = False,
     area: Annotated[str | None, Query()] = None,
     date_from: Annotated[datetime | None, Query()] = None,
     date_to: Annotated[datetime | None, Query()] = None,
@@ -124,13 +164,18 @@ async def list_complaints(
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> Page[ComplaintRead]:
-    """Every filter is applied in SQL — nothing is post-filtered in Python."""
+    """Every filter is applied in SQL — nothing is post-filtered in Python.
+
+    ``mine=true`` is the staff-side "my queue": complaints *assigned to* the caller.
+    It wins over an explicit ``assignee_id`` so the two can never disagree.
+    """
     filters = ComplaintFilters(
         q=q,
         category=category or [],
         priority=priority or [],
         status=status or [],
         department_id=department_id,
+        assignee_id=user.id if mine else assignee_id,
         area=area,
         date_from=date_from,
         date_to=date_to,
@@ -159,6 +204,24 @@ async def update_complaint(
 ) -> ComplaintRead:
     """Applies the change, validates the status transition, appends a StatusEvent."""
     complaint = await manager.apply_update(complaint_id, payload, actor=user.email)
+    return ComplaintRead.model_validate(complaint)
+
+
+@router.post(
+    "/{complaint_id}/auto-assign",
+    response_model=ComplaintRead,
+    summary="Re-run the auto-assignment rule (staff)",
+)
+async def auto_assign_complaint(
+    complaint_id: str, user: StaffUser, manager: ComplaintManagerDep
+) -> ComplaintRead:
+    """Re-apply the CONTRACT §4b workload rule to one complaint.
+
+    Returns ``200`` with the complaint either way: if the department has no
+    available staff, ``assignee`` simply comes back ``null``. Nothing is dropped,
+    and no error is raised for a situation the operator can see in the response.
+    """
+    complaint = await manager.auto_assign(complaint_id, actor=user.email)
     return ComplaintRead.model_validate(complaint)
 
 

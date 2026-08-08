@@ -5,7 +5,7 @@ from __future__ import annotations
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User
+from app.models.user import Role, User
 
 
 class UserRepository:
@@ -37,3 +37,24 @@ class UserRepository:
     async def list_all(self, *, limit: int = 100) -> list[User]:
         stmt = select(User).order_by(User.created_at.desc()).limit(limit)
         return list((await self.session.execute(stmt)).scalars())
+
+    async def list_staff(
+        self,
+        *,
+        department_id: str | None = None,
+        only_available: bool = False,
+        include_admins: bool = False,
+    ) -> list[User]:
+        """Staff accounts, optionally narrowed to one department.
+
+        Ordered by ``id`` because the assignment rule's final tie-break is on user
+        id — sorting here means the caller's ``min()`` is deterministic without
+        needing a secondary sort of its own.
+        """
+        roles = [Role.STAFF, Role.ADMIN] if include_admins else [Role.STAFF]
+        stmt = select(User).where(User.role.in_(roles), User.is_active.is_(True))
+        if department_id is not None:
+            stmt = stmt.where(User.department_id == department_id)
+        if only_available:
+            stmt = stmt.where(User.is_available.is_(True))
+        return list((await self.session.execute(stmt.order_by(User.id.asc()))).scalars())

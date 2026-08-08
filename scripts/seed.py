@@ -9,10 +9,17 @@ Run it with::
 What it produces (with a FIXED random seed, so every run is byte-identical):
 
 * 6 municipal departments and the demo admin account;
+* 2-3 staff members per department (two of them deliberately ``is_available=false``,
+  so the "available" clause of the assignment rule is visibly doing something);
+* a handful of citizen accounts, with some existing complaints linked to them so
+  ``GET /complaints/mine`` has real history on day one;
 * ~800 realistic Karachi complaints spread over the last 180 days;
 * one plausible ``AIAnalysis`` row per complaint (``ml`` or ``rules`` tier), so the
   dashboard is fully populated with **no network calls**;
-* a status timeline per complaint.
+* a status timeline per complaint;
+* staff assignments on every non-open complaint, distributed by replaying the same
+  least-loaded rule the live ``AssignmentService`` uses, so the workload numbers on
+  the staff screen are balanced and defensible rather than random.
 
 The data is shaped to tell a story, because a flat random dataset makes for a boring
 demo and a meaningless statistics benchmark:
@@ -43,11 +50,19 @@ from sqlalchemy import delete
 
 from app.core.config import settings
 from app.core.logging_config import configure_logging, get_logger
-from app.core.security import REFERENCE_ALPHABET, REFERENCE_PREFIX
+from app.core.security import REFERENCE_ALPHABET, REFERENCE_PREFIX, generate_reference_code
 from app.db import create_all
 from app.db.session import SessionLocal
 from app.models.ai_analysis import AIAnalysis, AISource, Sentiment
-from app.models.complaint import AIStatus, Category, Complaint, Priority, Status
+from app.models.complaint import (
+    ACTIVE_STATUSES,
+    PRIORITY_RANK,
+    AIStatus,
+    Category,
+    Complaint,
+    Priority,
+    Status,
+)
 from app.models.department import Department
 from app.models.status_event import StatusEvent
 from app.models.user import Role, User
@@ -346,6 +361,57 @@ LAST_NAMES = (
     "Khan", "Siddiqui", "Ansari", "Baloch", "Memon", "Qureshi", "Shaikh",
     "Abbasi", "Rizvi", "Jamali", "Chandio", "Malik", "Hashmi", "Solangi",
 )
+
+# =============================================================================
+# Staff roster (CONTRACT §4b)
+# =============================================================================
+# (department slug, full name, email local part, is_available). Two people are
+# deliberately unavailable — Nadia Solangi in Water and Rehan Jamali in Sewerage —
+# so a demo can show the assignment rule stepping over them, and so the staff
+# screen has something other than a column of identical green ticks.
+STAFF_ROSTER: tuple[tuple[str, str, str, bool], ...] = (
+    ("roads", "Imran Baloch", "imran.baloch", True),
+    ("roads", "Ayesha Qureshi", "ayesha.qureshi", True),
+    ("roads", "Tariq Memon", "tariq.memon", True),
+    ("water", "Sana Rizvi", "sana.rizvi", True),
+    ("water", "Nadia Solangi", "nadia.solangi", False),
+    ("water", "Kashif Chandio", "kashif.chandio", True),
+    ("waste", "Bilal Ansari", "bilal.ansari", True),
+    ("waste", "Maryam Hashmi", "maryam.hashmi", True),
+    ("electricity", "Usman Shaikh", "usman.shaikh", True),
+    ("electricity", "Hina Abbasi", "hina.abbasi", True),
+    ("electricity", "Adnan Malik", "adnan.malik", True),
+    ("sewerage", "Farhan Siddiqui", "farhan.siddiqui", True),
+    ("sewerage", "Rehan Jamali", "rehan.jamali", False),
+    ("sewerage", "Zainab Khan", "zainab.khan", True),
+    ("safety", "Owais Abbasi", "owais.abbasi", True),
+    ("safety", "Amna Baloch", "amna.baloch", True),
+)
+
+#: The legacy demo staff login, kept working exactly as before and now posted to a
+#: department so it participates in assignment like everybody else.
+LEGACY_STAFF_EMAIL = "staff@civic.gov.pk"
+LEGACY_STAFF_PASSWORD = "Staff@123"
+LEGACY_STAFF_DEPARTMENT = "roads"
+
+# Demo citizens. The first is the one printed in the seed summary — the account a
+# presenter signs into to show ``GET /complaints/mine`` with real history behind it.
+DEMO_CITIZENS: tuple[tuple[str, str], ...] = (
+    ("Ayesha Siddiqui", "ayesha.siddiqui@example.com"),
+    ("Bilal Khan", "bilal.khan@example.com"),
+    ("Fatima Memon", "fatima.memon@example.com"),
+    ("Usman Ansari", "usman.ansari@example.com"),
+    ("Hina Baloch", "hina.baloch@example.com"),
+    ("Junaid Qureshi", "junaid.qureshi@example.com"),
+    ("Sadia Malik", "sadia.malik@example.com"),
+    ("Owais Shaikh", "owais.shaikh@example.com"),
+    ("Rabia Hashmi", "rabia.hashmi@example.com"),
+    ("Naveed Rizvi", "naveed.rizvi@example.com"),
+)
+
+#: Complaints handed to each demo citizen, so ``/complaints/mine`` is never a
+#: single row and paginates believably.
+COMPLAINTS_PER_CITIZEN = 8
 
 # Baseline median resolution hours by priority (before the department multiplier).
 PRIORITY_MEDIAN_HOURS: dict[Priority, float] = {
@@ -726,6 +792,87 @@ class SeedGenerator:
         )
         return events
 
+    # ------------------------------------------------------ accounts & assignment
+    def link_citizens(self, complaints: list[Complaint], citizens: list[User]) -> int:
+        """Attach a slice of the history to the demo citizen accounts.
+
+        Only a slice: the remaining ~90% keep their generated pseudonymous emails
+        and a ``citizen_id`` of ``None``, which is exactly the shape of the live
+        database (the seeded rows predate accounts) and makes the nullable column
+        meaningful rather than decorative.
+        """
+        if not citizens:
+            return 0
+        pool = list(complaints)
+        self.rng.shuffle(pool)
+        picks = pool[: min(len(pool), COMPLAINTS_PER_CITIZEN * len(citizens))]
+        for index, complaint in enumerate(picks):
+            citizen = citizens[index % len(citizens)]
+            complaint.citizen_id = citizen.id
+            complaint.citizen_email = citizen.email
+            complaint.citizen_name = citizen.full_name
+        return len(picks)
+
+    def assign_staff(
+        self, complaints: list[Complaint], staff_by_department: dict[str, list[User]]
+    ) -> Counter:
+        """Distribute non-open complaints across their department's staff.
+
+        This replays the *live* rule from ``AssignmentService`` in memory — fewest
+        active complaints, then lowest summed priority weight — rather than picking
+        at random, for two reasons. The demo opens on a workload distribution that
+        is actually balanced, and the seeded numbers agree with what the running
+        service would have produced, so nothing looks wrong the first time a staff
+        member is auto-assigned live.
+
+        Open complaints are left unassigned on purpose: setting an assignee is what
+        moves a complaint out of ``open``, so an assigned-but-open row could not
+        have been produced by the real system.
+
+        Tie-break here is the roster index rather than the user id, because ids are
+        database-generated and would make the distribution vary run to run.
+        """
+        # user id -> [active_count, active_weight, lifetime_count]
+        ledger: dict[str, list[int]] = {
+            member.id: [0, 0, 0]
+            for members in staff_by_department.values()
+            for member in members
+        }
+        assigned = Counter()
+
+        for complaint in sorted(complaints, key=lambda c: c.created_at):
+            if complaint.status in (Status.OPEN, Status.REJECTED):
+                continue
+            team = staff_by_department.get(complaint.department_id or "") or []
+            if not team:
+                continue
+
+            if complaint.status in ACTIVE_STATUSES:
+                # Live work: the real rule, so today's workload column is balanced.
+                def sort_key(pair: tuple[int, User]) -> tuple[int, ...]:
+                    return (*ledger[pair[1].id], pair[0])
+            else:
+                # Already closed, so it costs nobody anything now — spread it on
+                # lifetime volume alone, otherwise whoever happens to be idle
+                # inherits the entire back catalogue.
+                def sort_key(pair: tuple[int, User]) -> tuple[int, ...]:
+                    return (ledger[pair[1].id][2], pair[0])
+
+            _index, chosen = min(enumerate(team), key=sort_key)
+            complaint.assignee_id = chosen.id
+            complaint.assigned_at = complaint.created_at + timedelta(
+                hours=self.rng.uniform(0.5, 8.0)
+            )
+
+            entry = ledger[chosen.id]
+            entry[2] += 1
+            if complaint.status in ACTIVE_STATUSES:
+                entry[0] += 1
+                entry[1] += PRIORITY_RANK[complaint.priority]
+            assigned[chosen.id] += 1
+
+        return assigned
+
     def _link_duplicates(self, complaints: list[Complaint]) -> None:
         """Point ~3% of complaints at an earlier one in the same area+category."""
         buckets: dict[tuple[str, str], list[Complaint]] = {}
@@ -750,8 +897,13 @@ class SeedGenerator:
 
 
 async def _wipe(session) -> None:
-    """Delete in FK-safe order."""
-    for model in (StatusEvent, AIAnalysis, Complaint, Department):
+    """Delete in FK-safe order.
+
+    ``User`` is included because departments are recreated with fresh primary keys,
+    so any staff row surviving a reset would point at a department that no longer
+    exists. The admin, staff and citizen accounts are all recreated below.
+    """
+    for model in (StatusEvent, AIAnalysis, Complaint, User, Department):
         await session.execute(delete(model))
     await session.commit()
 
@@ -787,22 +939,88 @@ async def _ensure_admin(session) -> User:
         full_name="Civic Administrator",
         role=Role.ADMIN,
     )
-    await auth.ensure_user(
-        email="staff@civic.gov.pk",
-        password="Staff@123",
-        full_name="Field Operations Staff",
-        role=Role.STAFF,
-    )
     await session.commit()
     return user
 
 
+async def _ensure_staff(session, departments: dict[str, Department]) -> dict[str, list[User]]:
+    """Create the departmental staff roster; returns ``{department_id: [User, ...]}``.
+
+    Idempotent in the way that matters: :meth:`AuthService.ensure_user` never
+    touches an existing account's password, so re-running the seeder cannot lock a
+    staff member out. The department posting and availability flag *are* refreshed,
+    because those are the fields this script owns and an older database will have
+    them unset.
+    """
+    auth = AuthService(UserRepository(session))
+    roster: list[tuple[User, Department]] = []
+
+    for slug, full_name, local_part, is_available in STAFF_ROSTER:
+        department = departments[slug]
+        user = await auth.ensure_user(
+            email=f"{local_part}@civic.gov.pk",
+            password="Staff@123",
+            full_name=full_name,
+            role=Role.STAFF,
+            department_id=department.id,
+            is_available=is_available,
+        )
+        user.department_id = department.id
+        user.is_available = is_available
+        roster.append((user, department))
+
+    # The pre-existing demo login keeps its email and password exactly as before;
+    # it just gains a department so it takes part in assignment like everyone else.
+    legacy_department = departments[LEGACY_STAFF_DEPARTMENT]
+    legacy = await auth.ensure_user(
+        email=LEGACY_STAFF_EMAIL,
+        password=LEGACY_STAFF_PASSWORD,
+        full_name="Field Operations Staff",
+        role=Role.STAFF,
+        department_id=legacy_department.id,
+    )
+    legacy.department_id = legacy_department.id
+    legacy.is_available = True
+    roster.append((legacy, legacy_department))
+
+    await session.commit()
+
+    by_department: dict[str, list[User]] = {}
+    for user, department in roster:
+        await session.refresh(user)
+        by_department.setdefault(department.id, []).append(user)
+    return by_department
+
+
+async def _ensure_citizens(session) -> list[User]:
+    """Create the demo citizen accounts, all on ``CITIZEN_DEFAULT_PASSWORD``."""
+    auth = AuthService(UserRepository(session))
+    citizens: list[User] = []
+    for full_name, email in DEMO_CITIZENS:
+        user, _ = await auth.find_or_create_citizen(email, full_name=full_name)
+        citizens.append(user)
+    await session.commit()
+    for user in citizens:
+        await session.refresh(user)
+    return citizens
+
+
 async def seed_database(
-    *, reset: bool = False, count: int = DEFAULT_COUNT, seed: int = RANDOM_SEED
+    *, reset: bool = False, count: int = DEFAULT_COUNT, seed: int = RANDOM_SEED,
+    append: bool = False,
 ) -> dict[str, int | str]:
     """Seed departments, the admin user and ``count`` complaints.
 
     Idempotent: without ``reset`` it will not add complaints to a non-empty table.
+
+    ``append`` adds the demo dataset *alongside* whatever is already there, which
+    ``reset`` cannot do and the default skip-if-populated behaviour refuses to.
+    That combination comes up on a live database holding a handful of genuine
+    citizen submissions but not enough volume for the statistics to mean anything:
+    a median, an IQR or a chi-square over six rows is noise. Appending keeps the
+    real complaints — and their reference codes, which people may already be
+    holding — while restoring the demo volume.
+
     Returns a summary dict suitable for logging.
     """
     await create_all()
@@ -813,20 +1031,52 @@ async def seed_database(
 
         departments = await _ensure_departments(session)
         await _ensure_admin(session)
+        staff_by_department = await _ensure_staff(session, departments)
+        citizens = await _ensure_citizens(session)
 
         from app.repositories.complaint_repo import ComplaintRepository
 
         existing = await ComplaintRepository(session).count_all(include_deleted=True)
-        if existing and not reset:
+        if existing and not reset and not append:
             return {
                 "status": "skipped",
                 "reason": "complaints already present",
                 "complaints": existing,
                 "departments": len(departments),
+                "staff": sum(len(team) for team in staff_by_department.values()),
+                "citizens": len(citizens),
             }
 
         generator = SeedGenerator(seed=seed)
         complaints, analyses, events = generator.build(count, departments)
+        linked = generator.link_citizens(complaints, citizens)
+        assigned = generator.assign_staff(complaints, staff_by_department)
+
+        if append:
+            # The generator is seeded, so ids and reference codes are deterministic —
+            # replaying it against a table that already holds a previous run collides
+            # on the primary key. Re-mint both from real randomness before inserting.
+            # Analyses and status events ride the ORM relationship and follow the new
+            # id automatically; `duplicate_of_id` is a raw column and has to be
+            # remapped by hand, or it would point at a row that no longer exists.
+            from sqlalchemy import select
+
+            taken_codes = set(
+                (await session.execute(select(Complaint.reference_code))).scalars().all()
+            )
+            remapped: dict[str, str] = {}
+            for complaint in complaints:
+                new_id = str(uuid.uuid4())
+                remapped[complaint.id] = new_id
+                complaint.id = new_id
+                while complaint.reference_code in taken_codes:
+                    complaint.reference_code = generate_reference_code()
+                taken_codes.add(complaint.reference_code)
+            for complaint in complaints:
+                if complaint.duplicate_of_id:
+                    complaint.duplicate_of_id = remapped.get(
+                        complaint.duplicate_of_id, complaint.duplicate_of_id
+                    )
 
         session.add_all(complaints)
         session.add_all(analyses)
@@ -842,6 +1092,12 @@ async def seed_database(
         median = durations[len(durations) // 2] if durations else 0.0
         mean = sum(durations) / len(durations) if durations else 0.0
 
+        staff_count = sum(len(team) for team in staff_by_department.values())
+        active_by_staff = Counter(
+            c.assignee_id for c in complaints if c.assignee_id and c.status in ACTIVE_STATUSES
+        )
+        loads = sorted(active_by_staff.values())
+
         return {
             "status": "seeded",
             "complaints": len(complaints),
@@ -851,18 +1107,34 @@ async def seed_database(
             "resolved": resolved,
             "median_resolution_hours": round(median, 1),
             "mean_resolution_hours": round(mean, 1),
+            "staff": staff_count,
+            "unavailable_staff": sum(1 for _, _, _, ok in STAFF_ROSTER if not ok),
+            "assigned_complaints": sum(assigned.values()),
+            "active_load_min": loads[0] if loads else 0,
+            "active_load_max": loads[-1] if loads else 0,
+            "citizens": len(citizens),
+            "citizen_linked_complaints": linked,
+            "demo_citizen_email": DEMO_CITIZENS[0][1],
+            "demo_citizen_password": settings.CITIZEN_DEFAULT_PASSWORD,
         }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Seed the civic services database.")
     parser.add_argument("--reset", action="store_true", help="Wipe existing data first.")
+    parser.add_argument(
+        "--append",
+        action="store_true",
+        help="Add the demo dataset alongside existing complaints instead of skipping.",
+    )
     parser.add_argument("--count", type=int, default=DEFAULT_COUNT, help="Complaints to generate.")
     parser.add_argument("--seed", type=int, default=RANDOM_SEED, help="Random seed.")
     args = parser.parse_args()
 
     configure_logging(debug=True)
-    summary = asyncio.run(seed_database(reset=args.reset, count=args.count, seed=args.seed))
+    summary = asyncio.run(
+        seed_database(reset=args.reset, count=args.count, seed=args.seed, append=args.append)
+    )
     log.info("seed.finished", **summary)
     print("\nSeed summary:")
     for key, value in summary.items():

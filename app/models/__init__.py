@@ -8,6 +8,7 @@ on that, and so should any script that calls ``create_all``.
 from app.db.base import Base
 from app.models.ai_analysis import AIAnalysis, AISource, Sentiment
 from app.models.complaint import (
+    ACTIVE_STATUSES,
     PRIORITY_RANK,
     STATUS_RANK,
     AIStatus,
@@ -21,6 +22,7 @@ from app.models.status_event import StatusEvent
 from app.models.user import Role, User
 
 __all__ = [
+    "ACTIVE_STATUSES",
     "PRIORITY_RANK",
     "STATUS_RANK",
     "AIAnalysis",
