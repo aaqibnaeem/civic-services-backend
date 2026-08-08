@@ -1,0 +1,334 @@
+{
+  "model_name": "tfidf-linearsvc-v1",
+  "evaluated_at": "2026-08-08T18:51:26Z",
+  "trained_at": "2026-08-08T18:19:46Z",
+  "sklearn_version": "1.9.0",
+  "artifact_size_human": "0.74 MB",
+  "n_train": 2400,
+  "n_test": 600,
+  "training_data": "synthetic \u2014 see ml/data/DATASET_CARD.md",
+  "category": {
+    "labels": [
+      "drainage",
+      "electricity",
+      "other",
+      "road",
+      "safety",
+      "waste",
+      "water"
+    ],
+    "n_test": 600,
+    "accuracy": 0.7583,
+    "macro_f1": 0.7396,
+    "weighted_f1": 0.7627,
+    "per_class": {
+      "drainage": {
+        "precision": 0.6832,
+        "recall": 0.7188,
+        "f1": 0.7005,
+        "support": 96
+      },
+      "electricity": {
+        "precision": 0.8732,
+        "recall": 0.8267,
+        "f1": 0.8493,
+        "support": 75
+      },
+      "other": {
+        "precision": 0.4118,
+        "recall": 0.7568,
+        "f1": 0.5333,
+        "support": 37
+      },
+      "road": {
+        "precision": 0.8778,
+        "recall": 0.8977,
+        "f1": 0.8876,
+        "support": 88
+      },
+      "safety": {
+        "precision": 0.7551,
+        "recall": 0.5362,
+        "f1": 0.6271,
+        "support": 69
+      },
+      "waste": {
+        "precision": 0.8544,
+        "recall": 0.7395,
+        "f1": 0.7928,
+        "support": 119
+      },
+      "water": {
+        "precision": 0.7797,
+        "recall": 0.7931,
+        "f1": 0.7863,
+        "support": 116
+      }
+    },
+    "confusion_matrix": [
+      [
+        69,
+        0,
+        7,
+        0,
+        0,
+        7,
+        13
+      ],
+      [
+        4,
+        62,
+        1,
+        0,
+        1,
+        0,
+        7
+      ],
+      [
+        0,
+        1,
+        28,
+        0,
+        2,
+        4,
+        2
+      ],
+      [
+        3,
+        0,
+        0,
+        79,
+        4,
+        2,
+        0
+      ],
+      [
+        0,
+        4,
+        25,
+        1,
+        37,
+        0,
+        2
+      ],
+      [
+        6,
+        2,
+        7,
+        10,
+        4,
+        88,
+        2
+      ],
+      [
+        19,
+        2,
+        0,
+        0,
+        1,
+        2,
+        92
+      ]
+    ],
+    "top_confusions": [
+      {
+        "actual": "safety",
+        "predicted": "other",
+        "count": 25
+      },
+      {
+        "actual": "water",
+        "predicted": "drainage",
+        "count": 19
+      },
+      {
+        "actual": "drainage",
+        "predicted": "water",
+        "count": 13
+      },
+      {
+        "actual": "waste",
+        "predicted": "road",
+        "count": 10
+      },
+      {
+        "actual": "drainage",
+        "predicted": "other",
+        "count": 7
+      }
+    ],
+    "cv_folds": 5,
+    "cv_macro_f1_mean": 1.0,
+    "cv_macro_f1_std": 0.0,
+    "cv_scores": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "mean_confidence": 0.8597,
+    "mean_confidence_when_correct": 0.9253,
+    "mean_confidence_when_wrong": 0.6538,
+    "confidence_buckets": [
+      {
+        "range": "0.0-0.4",
+        "n": 31,
+        "accuracy": 0.1935,
+        "mean_confidence": 0.333
+      },
+      {
+        "range": "0.4-0.6",
+        "n": 59,
+        "accuracy": 0.4237,
+        "mean_confidence": 0.5071
+      },
+      {
+        "range": "0.6-0.8",
+        "n": 69,
+        "accuracy": 0.4348,
+        "mean_confidence": 0.6945
+      },
+      {
+        "range": "0.8-1.0",
+        "n": 441,
+        "accuracy": 0.8934,
+        "mean_confidence": 0.9697
+      }
+    ],
+    "inference_ms_per_doc": 0.133,
+    "confusion_png": "confusion_category.png"
+  },
+  "priority": {
+    "labels": [
+      "critical",
+      "high",
+      "low",
+      "medium"
+    ],
+    "n_test": 600,
+    "accuracy": 0.7417,
+    "macro_f1": 0.6863,
+    "weighted_f1": 0.734,
+    "per_class": {
+      "critical": {
+        "precision": 0.5962,
+        "recall": 0.4306,
+        "f1": 0.5,
+        "support": 72
+      },
+      "high": {
+        "precision": 0.6828,
+        "recall": 0.8245,
+        "f1": 0.747,
+        "support": 188
+      },
+      "low": {
+        "precision": 0.8906,
+        "recall": 0.5481,
+        "f1": 0.6786,
+        "support": 104
+      },
+      "medium": {
+        "precision": 0.786,
+        "recall": 0.8559,
+        "f1": 0.8195,
+        "support": 236
+      }
+    },
+    "confusion_matrix": [
+      [
+        31,
+        31,
+        3,
+        7
+      ],
+      [
+        13,
+        155,
+        2,
+        18
+      ],
+      [
+        5,
+        12,
+        57,
+        30
+      ],
+      [
+        3,
+        29,
+        2,
+        202
+      ]
+    ],
+    "top_confusions": [
+      {
+        "actual": "critical",
+        "predicted": "high",
+        "count": 31
+      },
+      {
+        "actual": "low",
+        "predicted": "medium",
+        "count": 30
+      },
+      {
+        "actual": "medium",
+        "predicted": "high",
+        "count": 29
+      },
+      {
+        "actual": "high",
+        "predicted": "medium",
+        "count": 18
+      },
+      {
+        "actual": "high",
+        "predicted": "critical",
+        "count": 13
+      }
+    ],
+    "cv_folds": 5,
+    "cv_macro_f1_mean": 0.8558,
+    "cv_macro_f1_std": 0.0149,
+    "cv_scores": [
+      0.8612,
+      0.8607,
+      0.8294,
+      0.8528,
+      0.8747
+    ],
+    "mean_confidence": 0.7951,
+    "mean_confidence_when_correct": 0.8534,
+    "mean_confidence_when_wrong": 0.6279,
+    "confidence_buckets": [
+      {
+        "range": "0.0-0.4",
+        "n": 16,
+        "accuracy": 0.4375,
+        "mean_confidence": 0.3468
+      },
+      {
+        "range": "0.4-0.6",
+        "n": 108,
+        "accuracy": 0.4167,
+        "mean_confidence": 0.5174
+      },
+      {
+        "range": "0.6-0.8",
+        "n": 121,
+        "accuracy": 0.5455,
+        "mean_confidence": 0.6959
+      },
+      {
+        "range": "0.8-1.0",
+        "n": 355,
+        "accuracy": 0.9211,
+        "mean_confidence": 0.9336
+      }
+    ],
+    "inference_ms_per_doc": 0.126,
+    "confusion_png": "confusion_priority.png"
+  }
+}

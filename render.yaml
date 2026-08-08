@@ -1,0 +1,65 @@
+# Render blueprint for the AI Smart Civic Services backend.
+#
+# Deploy: push this repo, then in Render choose "New +" -> "Blueprint" and point it
+# at this file. Set the secret env vars (marked `sync: false`) in the dashboard.
+services:
+  - type: web
+    name: civic-backend
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: civic-backend
+    # `uv sync --frozen` installs exactly what uv.lock pins — no surprise upgrades.
+    buildCommand: |
+      pip install --upgrade uv
+      uv sync --frozen --no-dev
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.13"
+      - key: APP_ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      # Render generates a strong value on first deploy.
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      # Paste the Neon URL verbatim, including ?sslmode=require&channel_binding=require —
+      # normalize_database_url() rewrites it for asyncpg at startup.
+      - key: DATABASE_URL
+        sync: false
+      # Comma-separated extra origins. localhost:5173/:4173 and https://*.vercel.app
+      # are always allowed by app/core/config.py.
+      - key: CORS_ORIGINS
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: DEEPSEEK_MODEL
+        value: deepseek-v4-flash
+      - key: AI_ENABLED
+        value: "true"
+      - key: AI_TIMEOUT_SECONDS
+        value: "25"
+      - key: AI_MAX_RETRIES
+        value: "3"
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ML_MODEL_PATH
+        value: ml/artifacts/classifier.joblib
+      # Seeds the demo dataset on the first boot against an empty database.
+      - key: SEED_ON_STARTUP
+        value: "true"
+      - key: ADMIN_EMAIL
+        value: admin@civic.gov.pk
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Render's free plan has no persistent disk, so uploads are disabled:
+      # NoopStorageService is selected automatically for this value.
+      - key: UPLOAD_DIR
+        value: none

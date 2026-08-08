@@ -1,0 +1,58 @@
+[project]
+name = "civic-backend"
+version = "0.1.0"
+description = "AI Smart Civic Services — backend core (FastAPI + SQLAlchemy async)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.20",
+    "asyncpg>=0.30",
+    "bcrypt>=4.2",
+    "fastapi>=0.115",
+    "httpx>=0.27",
+    "joblib>=1.5.3",
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.1",
+    "openai>=2.53.0",
+    "pandas>=3.0.5",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "pyjwt>=2.9",
+    "python-multipart>=0.0.12",
+    "scikit-learn>=1.9.0",
+    "scipy>=1.18.0",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "structlog>=24.4",
+    "tenacity>=9.1.4",
+    "uvicorn[standard]>=0.32",
+]
+
+[dependency-groups]
+dev = [
+    "anyio>=4.6",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "ml/artifacts", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+ignore = ["B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]
+"scripts/seed.py" = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]

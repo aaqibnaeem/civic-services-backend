@@ -1,0 +1,2635 @@
+{
+  "rows": [
+    {
+      "id": "G01",
+      "text": "There is a very large pothole in the middle of Rashid Minhas Road right outside the government girls school. Two motorcyclists have already fallen this week. Please fix it before someone is killed.",
+      "expected_category": "road",
+      "expected_priority": "critical",
+      "note": "Road surface damage; injuries already occurred + school adjacent.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "critical",
+          "confidence": 0.62,
+          "is_emergency": true,
+          "summary": "Roads & Potholes issue reported: There is a very large pothole in the middle of Rashid Minhas Road right outside the government girls school.",
+          "reasoning": "Keyword rules matched 'pothole', 'road'; category score 5.1 vs runner-up 'water' 0.0; priority score 13.3 from fatality, someone fell, foreseeable fatality, school nearby. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "pothole",
+            "road"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 0.7,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "road",
+          "priority": "critical",
+          "confidence": 0.9891,
+          "is_emergency": true,
+          "summary": "Roads & Potholes issue (critical priority): There is a very large pothole in the middle of Rashid Minhas Road right outside the government girls school.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=0.99 (runner-up 'safety' p=0.00); priority model predicted 'critical' at p=0.64.",
+          "keywords": [
+            "motorcyclists",
+            "government",
+            "pothole",
+            "outside",
+            "already",
+            "someone"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 5.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "road",
+          "priority": "critical",
+          "confidence": 0.96,
+          "is_emergency": true,
+          "summary": "Large pothole on Rashid Minhas Road outside a girls school has caused motorcycle falls and risks fatalities.",
+          "reasoning": "'Pothole' in the road surface is unambiguously road. Injuries have already occurred and a school is adjacent, making it critical.",
+          "keywords": [
+            "pothole",
+            "road",
+            "school",
+            "motorcyclists",
+            "fallen"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2234.4,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G02",
+      "text": "Assalam o alaikum, hamari gali me kachra 15 din se utha nahi hai. Bohot badbu hai aur makhiyan bohot ho gayi hain. Bachay wahan se school jate hain. Meherbani kar ke safai karwa dain.",
+      "expected_category": "waste",
+      "expected_priority": "high",
+      "note": "Pure Roman-Urdu. Solid waste, 15 days, disease vector, school route.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: Assalam o alaikum, hamari gali me kachra 15 din se utha nahi hai.",
+          "reasoning": "Keyword rules matched 'kachra', 'safai', 'badbu', 'makhiyan'; category score 10.6 vs runner-up 'electricity' 1.2; priority score 6.2 from school nearby, children affected, weeks unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "kachra",
+            "safai",
+            "badbu",
+            "makhiyan"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.9975,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue (high priority): Assalam o alaikum, hamari gali me kachra 15 din se utha nahi hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'waste' at p=1.00 (runner-up 'other' p=0.00); priority model predicted 'high' at p=0.61.",
+          "keywords": [
+            "meherbani",
+            "makhiyan",
+            "assalam",
+            "alaikum",
+            "kachra",
+            "bachay"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.3,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.94,
+          "is_emergency": false,
+          "summary": "Garbage uncollected for fifteen days in a residential lane, causing stench and flies on a route children use for school.",
+          "reasoning": "Roman-Urdu 'kachra' and 'safai' mean garbage and cleaning, so this is solid waste. Fifteen days, disease vectors and children walking past raise it to high, but nobody is injured so it is not critical.",
+          "keywords": [
+            "kachra",
+            "badbu",
+            "makhiyan",
+            "safai",
+            "school"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2282.0,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G03",
+      "text": "GUTTER KA PANI PURI SARAK PAR PHAIL GAYA HAI!!! SEWERAGE LINE BAND HAI. GAARI NIKALNA MUSHKIL HO GAYA HAI. TEEN HAFTE SE YEHI HAAL HAI!!!",
+      "expected_category": "drainage",
+      "expected_priority": "high",
+      "note": "ALL CAPS Roman-Urdu. Waste water, so drainage not road.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: GUTTER KA PANI PURI SARAK PAR PHAIL GAYA HAI!!!",
+          "reasoning": "Keyword rules matched 'sewerage', 'gutter'; category score 7.4 vs runner-up 'road' 2.4; priority score 2.8 from weeks unresolved, written in capitals, 6 exclamation marks. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "sewerage",
+            "gutter"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "critical",
+          "confidence": 0.7172,
+          "is_emergency": true,
+          "summary": "Drainage & Sewerage issue (critical priority): GUTTER KA PANI PURI SARAK PAR PHAIL GAYA HAI!!!",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=0.72 (runner-up 'road' p=0.28); priority model predicted 'critical' at p=0.46.",
+          "keywords": [
+            "sewerage",
+            "nikalna",
+            "mushkil",
+            "gutter",
+            "sarak",
+            "phail"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.7,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Blocked sewerage line has flooded an entire street with waste water for three weeks, obstructing vehicles.",
+          "reasoning": "'Gutter ka pani' and 'sewerage line band' are waste water, so disambiguation rule 2 applies: the road is the victim and the sewer is the fault, making this drainage not road. Whole-street exposure over three weeks is high; the capitals and exclamation marks are tone only and do not raise it to critical.",
+          "keywords": [
+            "gutter",
+            "sewerage",
+            "sarak",
+            "band",
+            "teen hafte"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1706.0,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G04",
+      "text": "bijli ka khamba jhuk gaya hai aur taar neeche latak rahi hai, neeche barish ka pani khara hai aur bachay wahin khelte hain. koi bara hadsa ho sakta hai.",
+      "expected_category": "electricity",
+      "expected_priority": "critical",
+      "note": "Live wire above standing water where children play.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.62,
+          "is_emergency": true,
+          "summary": "Electricity & Streetlights issue reported: bijli ka khamba jhuk gaya hai aur taar neeche latak rahi hai, neeche barish ka pani khara hai aur bachay wahin khelte hain.",
+          "reasoning": "Keyword rules matched 'bijli', 'khamba', 'taar'; category score 9.4 vs runner-up 'water' 2.2; priority score 11.9 from accident, hanging wire, leaning pole, children affected. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "bijli",
+            "khamba",
+            "taar"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.8,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.564,
+          "is_emergency": true,
+          "summary": "Electricity & Streetlights issue (critical priority): bijli ka khamba jhuk gaya hai aur taar neeche latak rahi hai, neeche barish ka pani khara hai aur bachay wahin khelte hain.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=0.56 (runner-up 'drainage' p=0.43); priority model predicted 'critical' at p=0.34.",
+          "keywords": [
+            "khamba",
+            "neeche",
+            "barish",
+            "bachay",
+            "khelte",
+            "bijli"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.8,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.93,
+          "is_emergency": true,
+          "summary": "Leaning electric pole with wires hanging into standing water where children play, in immediate danger of electrocution.",
+          "reasoning": "'Khamba' and 'taar' identify an electricity asset, so rule 6 keeps this in electricity rather than safety. A live wire above standing water where children play is an immediate risk to life, so critical.",
+          "keywords": [
+            "bijli",
+            "khamba",
+            "taar",
+            "pani",
+            "bachay"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1675.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G05",
+      "text": "The street light outside our house has been off for about two weeks. Not urgent, just letting you know so it can be fixed in the normal round.",
+      "expected_category": "electricity",
+      "expected_priority": "low",
+      "note": "Streetlights map to electricity. Citizen explicitly says not urgent.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "low",
+          "confidence": 0.5787,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue reported: The street light outside our house has been off for about two weeks.",
+          "reasoning": "Keyword rules matched 'street light'; category score 3.6 vs runner-up 'road' 0.0; priority score -0.7 from weeks unresolved, explicitly not urgent, says urgent. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "street light"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.7,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "high",
+          "confidence": 0.9875,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue (high priority): The street light outside our house has been off for about two weeks.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=0.99 (runner-up 'road' p=0.00); priority model predicted 'high' at p=0.73.",
+          "keywords": [
+            "outside",
+            "letting",
+            "street",
+            "urgent",
+            "normal",
+            "light"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.1,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "low",
+          "confidence": 0.92,
+          "is_emergency": false,
+          "summary": "Single street light outside a residence non-functional for two weeks; citizen reports it as routine.",
+          "reasoning": "Street lights map to electricity by disambiguation rule 4, and no fear of crime is expressed so it is not safety. The citizen explicitly says it is not urgent and affects one house, so low.",
+          "keywords": [
+            "street light",
+            "off",
+            "two weeks",
+            "not urgent"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1446.9,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G06",
+      "text": "No water supply in our area since 5 days. We have to buy a tanker daily which costs 4000 rupees. Please restore the supply.",
+      "expected_category": "water",
+      "expected_priority": "high",
+      "note": "Clean water supply failure, whole area, 5 days, financial burden.",
+      "tiers": {
+        "rules": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue reported: No water supply in our area since 5 days.",
+          "reasoning": "Keyword rules matched 'water supply', 'tanker', 'no water', 'water'; category score 10.2 vs runner-up 'road' 0.0; priority score 1.0 from days unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "water supply",
+            "tanker",
+            "no water",
+            "water"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.9988,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue (medium priority): No water supply in our area since 5 days.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'water' at p=1.00 (runner-up 'electricity' p=0.00); priority model predicted 'medium' at p=0.95.",
+          "keywords": [
+            "restore",
+            "supply",
+            "tanker",
+            "rupees",
+            "water",
+            "daily"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.1,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "water",
+          "priority": "high",
+          "confidence": 0.97,
+          "is_emergency": false,
+          "summary": "No water supply in the area for five days, forcing residents to buy expensive tankers daily.",
+          "reasoning": "'No water supply' and 'tanker' clearly indicate clean water supply issues, so category is water. Five days without water affecting an area and forcing costly purchases is high priority, but no immediate life risk so not critical.",
+          "keywords": [
+            "water supply",
+            "tanker",
+            "5 days",
+            "4000 rupees"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1749.5,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G07",
+      "text": "Stray dogs have attacked two children near the park in Korangi. One child needed stitches at the hospital. Please send the municipal team.",
+      "expected_category": "safety",
+      "expected_priority": "critical",
+      "note": "Live animal attack with injuries.",
+      "tiers": {
+        "rules": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.4586,
+          "is_emergency": true,
+          "summary": "Public Safety issue reported: Stray dogs have attacked two children near the park in Korangi.",
+          "reasoning": "Keyword rules matched 'stray dogs'; category score 3.4 vs runner-up 'other' 1.4; priority score 9.8 from attack, medical treatment needed, hospital nearby, children affected. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "stray dogs"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.6,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.8817,
+          "is_emergency": true,
+          "summary": "Public Safety issue (critical priority): Stray dogs have attacked two children near the park in Korangi.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=0.88 (runner-up 'other' p=0.08); priority model predicted 'critical' at p=0.40.",
+          "keywords": [
+            "municipal",
+            "attacked",
+            "children",
+            "stitches",
+            "hospital",
+            "korangi"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.95,
+          "is_emergency": true,
+          "summary": "Stray dogs attacked two children near a Korangi park; one child required hospital stitches.",
+          "reasoning": "Live stray dogs attacking people is safety per rule 7, and injuries requiring hospital treatment make it critical.",
+          "keywords": [
+            "stray dogs",
+            "attacked",
+            "children",
+            "park",
+            "hospital",
+            "stitches"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1905.0,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G08",
+      "text": "Sewage has mixed into our drinking water line. Three people in our house are vomiting and my father has been admitted to hospital.",
+      "expected_category": "water",
+      "expected_priority": "critical",
+      "note": "AMBIGUOUS: contamination of the clean water line -> water; a grader could defensibly say drainage. Hospitalisation makes it critical either way.",
+      "tiers": {
+        "rules": {
+          "category": "water",
+          "priority": "critical",
+          "confidence": 0.5574,
+          "is_emergency": true,
+          "summary": "Water Supply & Leakage issue reported: Sewage has mixed into our drinking water line.",
+          "reasoning": "Keyword rules matched 'drinking water', 'water line', 'water'; category score 7.2 vs runner-up 'drainage' 3.8; priority score 12.2 from sewage in drinking water, hospitalised, acute illness, hospital nearby. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "drinking water",
+            "water line",
+            "water"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.0,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "water",
+          "priority": "critical",
+          "confidence": 0.9594,
+          "is_emergency": true,
+          "summary": "Water Supply & Leakage issue (critical priority): Sewage has mixed into our drinking water line.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'water' at p=0.96 (runner-up 'waste' p=0.02); priority model predicted 'critical' at p=0.94.",
+          "keywords": [
+            "drinking",
+            "vomiting",
+            "admitted",
+            "hospital",
+            "sewage",
+            "people"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.9,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "water",
+          "priority": "critical",
+          "confidence": 0.97,
+          "is_emergency": true,
+          "summary": "Sewage mixed into drinking water line; three people vomiting and father hospitalised.",
+          "reasoning": "'Sewage mixed into drinking water' is a contamination of clean supply, so category is water. Hospitalisation and active illness make it critical and an emergency.",
+          "keywords": [
+            "sewage",
+            "drinking water",
+            "vomiting",
+            "hospital"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 3251.3,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G09",
+      "text": "the road outside our house is broken since months, there are big khadde and rickshaws keep getting stuck. please repair.",
+      "expected_category": "road",
+      "expected_priority": "medium",
+      "note": "Code-switched. Road surface, months, no injury or sensitive site.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "medium",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: the road outside our house is broken since months, there are big khadde and rickshaws keep getting stuck.",
+          "reasoning": "Keyword rules matched 'khadde', 'road'; category score 5.1 vs runner-up 'water' 0.0; priority score 1.2 from months mentioned. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "khadde",
+            "road"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.3,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.9944,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (high priority): the road outside our house is broken since months, there are big khadde and rickshaws keep getting stuck.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=0.99 (runner-up 'electricity' p=0.00); priority model predicted 'high' at p=0.85.",
+          "keywords": [
+            "rickshaws",
+            "outside",
+            "getting",
+            "broken",
+            "months",
+            "khadde"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.3,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "road",
+          "priority": "medium",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Broken road with large potholes outside a house causing rickshaws to get stuck for months.",
+          "reasoning": "'Khadde' means potholes and the road surface is damaged, so this is road. Months of inconvenience but no injury or vulnerable population named, so medium.",
+          "keywords": [
+            "road",
+            "broken",
+            "khadde",
+            "rickshaws",
+            "stuck"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1873.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G10",
+      "text": "Respected sir, the garbage container at the corner of our street is overflowing and nobody has come to empty it for a week.",
+      "expected_category": "waste",
+      "expected_priority": "medium",
+      "note": "Ordinary uncollected waste, one street.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.4729,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: Respected sir, the garbage container at the corner of our street is overflowing and nobody has come to empty it for a week.",
+          "reasoning": "Keyword rules matched 'garbage', 'container'; category score 5.0 vs runner-up 'drainage' 2.8; priority score 1.4 from weeks unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "garbage",
+            "container"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.9976,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue (high priority): Respected sir, the garbage container at the corner of our street is overflowing and nobody has come to empty it for a week.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'waste' at p=1.00 (runner-up 'drainage' p=0.00); priority model predicted 'high' at p=0.48.",
+          "keywords": [
+            "overflowing",
+            "respected",
+            "container",
+            "garbage",
+            "corner",
+            "street"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 6.3,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Overflowing garbage container at a street corner uncollected for a week, causing waste accumulation.",
+          "reasoning": "The complaint explicitly mentions 'garbage container' and 'overflowing', which is solid waste. A week of accumulation and the container being full affects the whole street, so priority is high.",
+          "keywords": [
+            "garbage",
+            "container",
+            "overflowing",
+            "week"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2059.1,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G11",
+      "text": "Load shedding in our area is running 8 hours a day with no schedule announced. Small businesses in the market are shutting down.",
+      "expected_category": "electricity",
+      "expected_priority": "high",
+      "note": "Power outage, whole market affected.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "medium",
+          "confidence": 0.5719,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue reported: Load shedding in our area is running 8 hours a day with no schedule announced.",
+          "reasoning": "Keyword rules matched 'load shedding'; category score 3.4 vs runner-up 'road' 0.0; priority score 1.0 from public place. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "load shedding"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.3,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "high",
+          "confidence": 0.982,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue (high priority): Load shedding in our area is running 8 hours a day with no schedule announced.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=0.98 (runner-up 'water' p=0.02); priority model predicted 'high' at p=0.40.",
+          "keywords": [
+            "businesses",
+            "announced",
+            "shedding",
+            "schedule",
+            "shutting",
+            "running"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Unscheduled load shedding of eight hours daily is forcing small market businesses to shut down.",
+          "reasoning": "'Load shedding' and 'bijli' context clearly indicate electricity. The impact on an entire market and businesses shutting down is broad and serious, but no immediate life risk, so high.",
+          "keywords": [
+            "load shedding",
+            "bijli",
+            "market",
+            "businesses",
+            "8 hours"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2055.4,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G12",
+      "text": "nali band hai, gande pani ki wajah se ghar me se bo aa rahi hai. do hafte se yehi masla hai.",
+      "expected_category": "drainage",
+      "expected_priority": "medium",
+      "note": "Roman-Urdu. Blocked drain, single household, two weeks.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "medium",
+          "confidence": 0.5998,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: nali band hai, gande pani ki wajah se ghar me se bo aa rahi hai.",
+          "reasoning": "Keyword rules matched 'nali', 'gande pani'; category score 6.8 vs runner-up 'water' 2.2; priority score 1.4 from weeks unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "nali",
+            "gande pani"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "medium",
+          "confidence": 0.7191,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue (medium priority): nali band hai, gande pani ki wajah se ghar me se bo aa rahi hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=0.72 (runner-up 'water' p=0.20); priority model predicted 'medium' at p=0.38.",
+          "keywords": [
+            "gande",
+            "wajah",
+            "hafte",
+            "masla",
+            "nali",
+            "band"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Blocked drain causing sewage backflow into a home for two weeks, with foul smell.",
+          "reasoning": "'Nali band' and 'gande pani' indicate waste water, and sewage backflow into the home is drainage by rule 1. Two weeks of exposure and sewage in the home raise it to high, but no injury so not critical.",
+          "keywords": [
+            "nali",
+            "band",
+            "gande pani",
+            "ghar",
+            "do hafte"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2467.9,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G13",
+      "text": "An open manhole in the middle of the walkway near the bus stop has no cover. It is dark at night and someone will fall in.",
+      "expected_category": "road",
+      "expected_priority": "critical",
+      "note": "AMBIGUOUS: open manhole in a walkway -> road hazard per our disambiguation rule 5; drainage is also defensible. Fall risk makes it critical.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "critical",
+          "confidence": 0.4492,
+          "is_emergency": true,
+          "summary": "Drainage & Sewerage issue reported: An open manhole in the middle of the walkway near the bus stop has no cover.",
+          "reasoning": "Keyword rules matched 'manhole'; category score 2.6 vs runner-up 'electricity' 0.9; priority score 10.4 from open manhole, open manhole, foreseeable serious harm, public place. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "manhole"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": false,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.9936,
+          "is_emergency": true,
+          "summary": "Public Safety issue (critical priority): An open manhole in the middle of the walkway near the bus stop has no cover.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=0.99 (runner-up 'drainage' p=0.00); priority model predicted 'critical' at p=0.44.",
+          "keywords": [
+            "manhole",
+            "walkway",
+            "someone",
+            "middle",
+            "cover",
+            "night"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.9,
+          "category_correct": false,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.85,
+          "is_emergency": false,
+          "summary": "Open manhole on a walkway near a bus stop, dark at night, risk of someone falling in.",
+          "reasoning": "The complaint is about an open manhole cover, which is a road surface hazard per rule 5, not drainage since no sewage is mentioned. The risk of injury is high but no injury has occurred, so priority is high.",
+          "keywords": [
+            "open manhole",
+            "walkway",
+            "bus stop",
+            "dark",
+            "fall"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1931.8,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G14",
+      "text": "plz clean the drain near our house it is blocked & water is standing, mosquitoes r everywhere",
+      "expected_category": "drainage",
+      "expected_priority": "medium",
+      "note": "SMS-shortened English. Blocked drain, mosquitoes.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "medium",
+          "confidence": 0.5653,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: plz clean the drain near our house it is blocked & water is standing, mosquitoes r everywhere",
+          "reasoning": "Keyword rules matched 'drain', 'blocked'; category score 4.6 vs runner-up 'water' 0.8; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "drain",
+            "blocked"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "medium",
+          "confidence": 0.9496,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue (medium priority): plz clean the drain near our house it is blocked & water is standing, mosquitoes r everywhere",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=0.95 (runner-up 'water' p=0.05); priority model predicted 'low' at p=0.71. Priority escalated from 'low' to 'medium' by the deterministic hazard rules; the rules may only raise priority, never lower it.",
+          "keywords": [
+            "mosquitoes",
+            "everywhere",
+            "standing",
+            "blocked",
+            "clean",
+            "drain"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.0,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Blocked drain near a house has standing water attracting mosquitoes, posing a disease risk.",
+          "reasoning": "The complaint mentions a blocked drain and standing water, which is waste water, so it maps to drainage. Mosquitoes indicate a disease vector, and the issue affects the household, so priority is high.",
+          "keywords": [
+            "drain",
+            "blocked",
+            "water",
+            "mosquitoes"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2057.6,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G15",
+      "text": "Mobile snatching happens at this turn almost every evening. Three incidents in our lane this month. There is no police patrolling at all.",
+      "expected_category": "safety",
+      "expected_priority": "high",
+      "note": "Repeated street crime, no injury reported.",
+      "tiers": {
+        "rules": {
+          "category": "safety",
+          "priority": "medium",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Public Safety issue reported: Mobile snatching happens at this turn almost every evening.",
+          "reasoning": "Keyword rules matched 'snatching', 'police'; category score 5.8 vs runner-up 'road' 0.0; priority score 1.2 from months mentioned. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "snatching",
+            "police"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.5,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "medium",
+          "confidence": 0.9974,
+          "is_emergency": false,
+          "summary": "Public Safety issue (medium priority): Mobile snatching happens at this turn almost every evening.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=1.00 (runner-up 'other' p=0.00); priority model predicted 'low' at p=0.61. Priority escalated from 'low' to 'medium' by the deterministic hazard rules (months mentioned); the rules may only raise priority, never lower it.",
+          "keywords": [
+            "patrolling",
+            "snatching",
+            "incidents",
+            "happens",
+            "evening",
+            "mobile"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.0,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "safety",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Recurring mobile snatching at a turn in the lane, three incidents this month, with no police patrolling.",
+          "reasoning": "'Snatching' and 'no police patrolling' clearly indicate street crime, which maps to safety. Multiple incidents over a month affect the whole lane, but no injury is described, so high rather than critical.",
+          "keywords": [
+            "snatching",
+            "mobile",
+            "lane",
+            "police",
+            "patrolling"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1744.7,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G16",
+      "text": "The park in our neighbourhood has been encroached by a private party who built a boundary wall and now charges an entry fee.",
+      "expected_category": "other",
+      "expected_priority": "medium",
+      "note": "Encroachment on public land, no category fits.",
+      "tiers": {
+        "rules": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.6063,
+          "is_emergency": false,
+          "summary": "Other issue reported: The park in our neighbourhood has been encroached by a private party who built a boundary wall and now charges an entry fee.",
+          "reasoning": "Keyword rules matched 'encroached', 'park'; category score 4.4 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "encroached",
+            "park"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.3,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "other",
+          "priority": "critical",
+          "confidence": 0.9284,
+          "is_emergency": true,
+          "summary": "Other issue (critical priority): The park in our neighbourhood has been encroached by a private party who built a boundary wall and now charges an entry fee.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'other' at p=0.93 (runner-up 'safety' p=0.07); priority model predicted 'critical' at p=0.54.",
+          "keywords": [
+            "neighbourhood",
+            "encroached",
+            "boundary",
+            "private",
+            "charges",
+            "party"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.7,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Private party encroached on a neighbourhood park, built a boundary wall and charges an entry fee.",
+          "reasoning": "'Encroached' and 'park' indicate illegal occupation of public land, which fits 'other' per the taxonomy. No immediate danger or broad harm, so medium priority.",
+          "keywords": [
+            "park",
+            "encroached",
+            "boundary wall",
+            "entry fee"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1641.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G17",
+      "text": "pani ka pressure bohot kam hai, sirf ground floor tak aata hai. upar wale floors par bilkul nahi aata.",
+      "expected_category": "water",
+      "expected_priority": "medium",
+      "note": "Roman-Urdu. Low water pressure, one building.",
+      "tiers": {
+        "rules": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.5306,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue reported: pani ka pressure bohot kam hai, sirf ground floor tak aata hai.",
+          "reasoning": "Keyword rules matched 'pani'; category score 2.2 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "pani"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.9912,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue (medium priority): pani ka pressure bohot kam hai, sirf ground floor tak aata hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'water' at p=0.99 (runner-up 'drainage' p=0.01); priority model predicted 'medium' at p=0.58.",
+          "keywords": [
+            "pressure",
+            "ground",
+            "floors",
+            "bilkul",
+            "floor",
+            "pani"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.8,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Low water pressure reaching only the ground floor, with no supply to upper floors.",
+          "reasoning": "'Pani ka pressure kam' and 'upar wale floors par nahi aata' clearly describe a clean water supply problem, so category is water. No injury or broad exposure mentioned, so medium priority.",
+          "keywords": [
+            "pani",
+            "pressure",
+            "kam",
+            "floors"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2041.3,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G18",
+      "text": "A large water pipe has burst on the main road and thousands of gallons are being wasted every hour. It has also started eroding the road surface.",
+      "expected_category": "water",
+      "expected_priority": "high",
+      "note": "AMBIGUOUS: burst supply main causing road damage. Rule 8 says fix the cause -> water.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "medium",
+          "confidence": 0.4274,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: A large water pipe has burst on the main road and thousands of gallons are being wasted every hour.",
+          "reasoning": "Keyword rules matched 'road'; category score 2.16 vs runner-up 'water' 0.8; priority score 1.4 from main road. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "road"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.4,
+          "category_correct": false,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "water",
+          "priority": "high",
+          "confidence": 0.5892,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue (high priority): A large water pipe has burst on the main road and thousands of gallons are being wasted every hour.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'water' at p=0.59 (runner-up 'road' p=0.41); priority model predicted 'high' at p=0.90.",
+          "keywords": [
+            "thousands",
+            "gallons",
+            "started",
+            "eroding",
+            "surface",
+            "wasted"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.6,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "water",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Burst water pipe on main road wasting thousands of gallons hourly and eroding the road surface.",
+          "reasoning": "The complaint explicitly mentions a burst water pipe, which is a clean water supply issue, so rule 8 applies: fix the cause (water) not the symptom (road erosion). High priority due to significant water loss and road damage affecting a main road.",
+          "keywords": [
+            "water pipe",
+            "burst",
+            "main road",
+            "wasting",
+            "eroding"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2112.0,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G19",
+      "text": "kachra",
+      "expected_category": "waste",
+      "expected_priority": "medium",
+      "note": "Single word. Tests degenerate input handling.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.5787,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: kachra",
+          "reasoning": "Keyword rules matched 'kachra'; category score 3.6 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "kachra"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 0.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.9995,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue (medium priority): kachra",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'waste' at p=1.00 (runner-up 'other' p=0.00); priority model predicted 'medium' at p=0.49.",
+          "keywords": [
+            "kachra"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.7,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.5,
+          "is_emergency": false,
+          "summary": "Complaint mentions garbage but lacks detail on location or impact.",
+          "reasoning": "The single word 'kachra' means garbage, clearly indicating solid waste, but there is no location or severity described, so confidence is moderate and priority defaults to medium.",
+          "keywords": [
+            "kachra"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1737.5,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G20",
+      "text": "There is a serious problem here please send someone",
+      "expected_category": "other",
+      "expected_priority": "medium",
+      "note": "Vague, no category signal at all. Should be low confidence.",
+      "tiers": {
+        "rules": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.1,
+          "is_emergency": false,
+          "summary": "Other issue reported: There is a serious problem here please send someone",
+          "reasoning": "No category keyword matched, defaulted to 'other'; category score 0.0 vs runner-up 'water' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 0.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.3292,
+          "is_emergency": true,
+          "summary": "Public Safety issue (critical priority): There is a serious problem here please send someone",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=0.33 (runner-up 'drainage' p=0.18); priority model predicted 'critical' at p=0.82. Confidence is low \u2014 the wording is outside the model's training vocabulary, so this classification should be reviewed.",
+          "keywords": [
+            "serious",
+            "problem",
+            "someone",
+            "send"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 6.4,
+          "category_correct": false,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.2,
+          "is_emergency": false,
+          "summary": "Complaint is vague with no specific problem, location, or impact described.",
+          "reasoning": "The message contains no specific words identifying a category, only a general request for help. Confidence is very low and default priority applies.",
+          "keywords": [
+            "serious",
+            "problem",
+            "send someone"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1491.1,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G21",
+      "text": "The transformer in our lane trips every time anyone switches on an AC. We have had no power for most of today.",
+      "expected_category": "electricity",
+      "expected_priority": "medium",
+      "note": "Electrical fault, one lane, one day.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "medium",
+          "confidence": 0.5719,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue reported: The transformer in our lane trips every time anyone switches on an AC.",
+          "reasoning": "Keyword rules matched 'transformer'; category score 3.4 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "transformer"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.9819,
+          "is_emergency": true,
+          "summary": "Electricity & Streetlights issue (critical priority): The transformer in our lane trips every time anyone switches on an AC.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=0.98 (runner-up 'water' p=0.01); priority model predicted 'critical' at p=0.67.",
+          "keywords": [
+            "transformer",
+            "switches",
+            "anyone",
+            "trips",
+            "every",
+            "power"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 6.6,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Transformer in the lane trips whenever an AC is switched on, leaving residents without power most of the day.",
+          "reasoning": "The complaint explicitly mentions a transformer and power outage, which maps to electricity. The issue affects the whole lane and has persisted for most of a day, but no injury or immediate danger is described, so priority is high.",
+          "keywords": [
+            "transformer",
+            "trips",
+            "ac",
+            "power",
+            "lane"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2388.0,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G22",
+      "text": "Rain water from last week's spell has still not drained out of our street. It is now green and full of mosquitoes and two children have got dengue.",
+      "expected_category": "drainage",
+      "expected_priority": "high",
+      "note": "Storm drainage failure with confirmed disease cases.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.3862,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: Rain water from last week's spell has still not drained out of our street.",
+          "reasoning": "Keyword rules matched 'rain water'; category score 2.0 vs runner-up 'road' 1.0; priority score 4.2 from children affected, disease risk. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "rain water"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.9963,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue (high priority): Rain water from last week's spell has still not drained out of our street.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=1.00 (runner-up 'waste' p=0.00); priority model predicted 'high' at p=0.44.",
+          "keywords": [
+            "mosquitoes",
+            "children",
+            "drained",
+            "week's",
+            "street",
+            "dengue"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.8,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "critical",
+          "confidence": 0.95,
+          "is_emergency": true,
+          "summary": "Stagnant rainwater from last week has turned green, breeding mosquitoes, and two children have contracted dengue.",
+          "reasoning": "The complaint emphasizes water that will not drain, which is drainage per rule 1. Dengue cases indicate serious harm already occurred, making it critical.",
+          "keywords": [
+            "rain water",
+            "drained",
+            "green",
+            "mosquitoes",
+            "dengue"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2036.8,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G23",
+      "text": "The footpath tiles outside the hospital gate are completely uprooted. Elderly patients walking to the OPD are tripping on them.",
+      "expected_category": "road",
+      "expected_priority": "high",
+      "note": "Pedestrian infrastructure, hospital adjacent, vulnerable users.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.5444,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: The footpath tiles outside the hospital gate are completely uprooted.",
+          "reasoning": "Keyword rules matched 'footpath'; category score 2.6 vs runner-up 'water' 0.0; priority score 6.0 from hospital nearby, elderly affected, vulnerable people. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "footpath"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.877,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (high priority): The footpath tiles outside the hospital gate are completely uprooted.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=0.88 (runner-up 'other' p=0.09); priority model predicted 'high' at p=0.85.",
+          "keywords": [
+            "completely",
+            "footpath",
+            "hospital",
+            "uprooted",
+            "patients",
+            "tripping"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Uprooted footpath tiles outside a hospital gate are causing elderly patients to trip on the way to OPD.",
+          "reasoning": "'Footpath tiles uprooted' is a pedestrian infrastructure defect, so road. A hospital is directly affected and elderly patients are named, which makes it high.",
+          "keywords": [
+            "footpath",
+            "tiles",
+            "uprooted",
+            "hospital",
+            "elderly",
+            "tripping"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2071.5,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G24",
+      "text": "Sarak par khudai kar ke chor di gayi hai, gas company wale trench bhar kar nahi gaye. raat ko koi bhi gir sakta hai.",
+      "expected_category": "road",
+      "expected_priority": "high",
+      "note": "Roman-Urdu. Unfilled trench, fall risk at night.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "medium",
+          "confidence": 0.5312,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: Sarak par khudai kar ke chor di gayi hai, gas company wale trench bhar kar nahi gaye.",
+          "reasoning": "Keyword rules matched 'sarak', 'trench'; category score 4.4 vs runner-up 'electricity' 1.2; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "sarak",
+            "trench"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.5,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "road",
+          "priority": "medium",
+          "confidence": 0.5058,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (medium priority): Sarak par khudai kar ke chor di gayi hai, gas company wale trench bhar kar nahi gaye.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=0.51 (runner-up 'safety' p=0.49); priority model predicted 'medium' at p=0.56.",
+          "keywords": [
+            "company",
+            "khudai",
+            "trench",
+            "sarak",
+            "sakta",
+            "chor"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.7,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Unfilled utility trench left open on a road after gas company work, posing a fall hazard at night.",
+          "reasoning": "The complaint mentions 'khudai' (excavation) and 'trench' left unfilled on the road, which is a road surface hazard. The danger of someone falling at night raises priority to high, but no injury has occurred yet, so not critical.",
+          "keywords": [
+            "khudai",
+            "trench",
+            "sarak",
+            "gir"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1946.8,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G25",
+      "text": "I would like to suggest that a dustbin be installed near the bus stop. There is no urgency, it is only a suggestion for improvement.",
+      "expected_category": "waste",
+      "expected_priority": "low",
+      "note": "Explicitly a suggestion, explicitly not urgent.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "low",
+          "confidence": 0.5581,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: I would like to suggest that a dustbin be installed near the bus stop.",
+          "reasoning": "Keyword rules matched 'dustbin'; category score 3.0 vs runner-up 'road' 0.0; priority score -3.5 from public place, explicitly not urgent, suggestion, not a fault. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "dustbin"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 0.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "road",
+          "priority": "low",
+          "confidence": 0.2145,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (low priority): I would like to suggest that a dustbin be installed near the bus stop.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=0.21 (runner-up 'safety' p=0.21); priority model predicted 'low' at p=0.99. Confidence is low \u2014 the wording is outside the model's training vocabulary, so this classification should be reviewed.",
+          "keywords": [
+            "improvement",
+            "suggestion",
+            "installed",
+            "suggest",
+            "dustbin",
+            "urgency"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 2.8,
+          "category_correct": false,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "low",
+          "confidence": 0.7,
+          "is_emergency": false,
+          "summary": "Suggestion to install a dustbin near a bus stop, described as non-urgent improvement.",
+          "reasoning": "The complaint mentions 'dustbin' which relates to solid waste management, but it is a suggestion rather than a failure report. The citizen explicitly says there is no urgency, so priority is low.",
+          "keywords": [
+            "dustbin",
+            "bus stop",
+            "suggestion"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 1820.3,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G26",
+      "text": "The wall of the abandoned plot next to the school has cracked badly and is leaning over the footpath. It could come down on the children any day.",
+      "expected_category": "safety",
+      "expected_priority": "critical",
+      "note": "Imminent structural collapse over a school route.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.5444,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: The wall of the abandoned plot next to the school has cracked badly and is leaning over the footpath.",
+          "reasoning": "Keyword rules matched 'footpath'; category score 2.6 vs runner-up 'water' 0.0; priority score 4.6 from school nearby, children affected. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "footpath"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.9,
+          "category_correct": false,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "high",
+          "confidence": 0.9744,
+          "is_emergency": false,
+          "summary": "Public Safety issue (high priority): The wall of the abandoned plot next to the school has cracked badly and is leaning over the footpath.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=0.97 (runner-up 'other' p=0.02); priority model predicted 'high' at p=0.88.",
+          "keywords": [
+            "abandoned",
+            "footpath",
+            "children",
+            "cracked",
+            "leaning",
+            "school"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.9,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.95,
+          "is_emergency": true,
+          "summary": "Cracked, leaning wall of an abandoned plot next to a school threatens to collapse onto children on the footpath.",
+          "reasoning": "A collapsing wall is a danger with no owning utility, so rule 6 maps it to safety. The wall is actively leaning over a footpath used by children, an immediate life risk, making it critical.",
+          "keywords": [
+            "wall",
+            "cracked",
+            "leaning",
+            "school",
+            "children",
+            "footpath"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2849.6,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G27",
+      "text": "Water coming from our tap is yellow and smells bad. We cannot drink it. This has been going on for ten days.",
+      "expected_category": "water",
+      "expected_priority": "high",
+      "note": "Contaminated drinking water, health risk.",
+      "tiers": {
+        "rules": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.5375,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue reported: Water coming from our tap is yellow and smells bad.",
+          "reasoning": "Keyword rules matched 'tap', 'water'; category score 2.4 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "tap",
+            "water"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.7,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.9711,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue (medium priority): Water coming from our tap is yellow and smells bad.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'water' at p=0.97 (runner-up 'waste' p=0.01); priority model predicted 'medium' at p=0.90.",
+          "keywords": [
+            "coming",
+            "yellow",
+            "smells",
+            "cannot",
+            "water",
+            "drink"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.8,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "water",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Tap water is yellow and foul-smelling, undrinkable for ten days, affecting the household.",
+          "reasoning": "'Water coming from tap' and 'yellow and smells bad' describe contaminated drinking water, which is clean water supply, so category is water. Ten days of undrinkable water affecting a household is high, but no injury or broad exposure is mentioned, so not critical.",
+          "keywords": [
+            "water",
+            "tap",
+            "yellow",
+            "smells",
+            "drink",
+            "ten days"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 13492.6,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G28",
+      "text": "Loudspeakers from the marriage hall behind our house run past midnight every weekend. Nobody in the building can sleep.",
+      "expected_category": "other",
+      "expected_priority": "medium",
+      "note": "Noise nuisance, no category fits.",
+      "tiers": {
+        "rules": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.5444,
+          "is_emergency": false,
+          "summary": "Other issue reported: Loudspeakers from the marriage hall behind our house run past midnight every weekend.",
+          "reasoning": "Keyword rules matched 'loudspeakers'; category score 2.6 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "loudspeakers"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.9955,
+          "is_emergency": false,
+          "summary": "Other issue (medium priority): Loudspeakers from the marriage hall behind our house run past midnight every weekend.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'other' at p=1.00 (runner-up 'electricity' p=0.00); priority model predicted 'medium' at p=0.69.",
+          "keywords": [
+            "loudspeakers",
+            "marriage",
+            "midnight",
+            "building",
+            "weekend",
+            "behind"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Loudspeakers from a marriage hall run past midnight every weekend, disturbing sleep for an entire building.",
+          "reasoning": "Noise nuisance from a marriage hall is not covered by road, water, waste, electricity, drainage, or safety, so it falls under 'other'. The disturbance affects multiple households but is a recurring weekend nuisance without immediate danger, so medium priority.",
+          "keywords": [
+            "loudspeakers",
+            "marriage hall",
+            "midnight",
+            "weekend",
+            "sleep"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2860.5,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G29",
+      "text": "sewerage ka pani ubal kar manhole se bahar aa raha hai aur bacho ke school jane ke raste par kharra hai. Bimari phail rahi hai.",
+      "expected_category": "drainage",
+      "expected_priority": "high",
+      "note": "Roman-Urdu. Sewage overflow on a school route, disease spreading.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.5805,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: sewerage ka pani ubal kar manhole se bahar aa raha hai aur bacho ke school jane ke raste par kharra hai.",
+          "reasoning": "Keyword rules matched 'sewerage', 'manhole'; category score 6.4 vs runner-up 'water' 2.2; priority score 4.8 from school nearby, disease risk. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "sewerage",
+            "manhole"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.9342,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue (high priority): sewerage ka pani ubal kar manhole se bahar aa raha hai aur bacho ke school jane ke raste par kharra hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=0.93 (runner-up 'water' p=0.07); priority model predicted 'high' at p=0.65.",
+          "keywords": [
+            "sewerage",
+            "manhole",
+            "school",
+            "kharra",
+            "bimari",
+            "bahar"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Sewerage overflowing from a manhole onto the route children use to reach school, spreading disease.",
+          "reasoning": "'Sewerage ka pani' and 'manhole' clearly indicate waste water, so this is drainage. A school route and disease spread raise it to high, but no injury has occurred so it is not critical.",
+          "keywords": [
+            "sewerage",
+            "pani",
+            "manhole",
+            "school",
+            "bimari"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2243.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G30",
+      "text": "Someone received an electric shock from the pole outside our shop this morning. He is in the hospital now. The wires are still live.",
+      "expected_category": "electricity",
+      "expected_priority": "critical",
+      "note": "Electrocution already occurred, hazard still live.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.5994,
+          "is_emergency": true,
+          "summary": "Electricity & Streetlights issue reported: Someone received an electric shock from the pole outside our shop this morning.",
+          "reasoning": "Keyword rules matched 'pole', 'wires'; category score 4.2 vs runner-up 'road' 0.0; priority score 10.6 from electric shock, hospitalised, hospital nearby. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "pole",
+            "wires"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.9751,
+          "is_emergency": true,
+          "summary": "Electricity & Streetlights issue (critical priority): Someone received an electric shock from the pole outside our shop this morning.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=0.98 (runner-up 'drainage' p=0.02); priority model predicted 'critical' at p=0.93.",
+          "keywords": [
+            "received",
+            "electric",
+            "hospital",
+            "someone",
+            "outside",
+            "morning"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 8.9,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "critical",
+          "confidence": 0.97,
+          "is_emergency": true,
+          "summary": "Electric pole outside a shop gave someone a shock; victim hospitalised and wires still live.",
+          "reasoning": "The complaint explicitly mentions an electric shock from a pole and live wires, which is an electricity asset and an immediate life risk, so critical.",
+          "keywords": [
+            "electric shock",
+            "pole",
+            "wires",
+            "live",
+            "hospital"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2363.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G31",
+      "text": "MERI GALI ME KOI SAFAI WALA NAHI AATA. MAHINO SE JHAROO NAHI LAGI. KYA HUM INSAAN NAHI HAIN?",
+      "expected_category": "waste",
+      "expected_priority": "high",
+      "note": "ALL CAPS angry Roman-Urdu. No sweeping for months.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.5513,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: MERI GALI ME KOI SAFAI WALA NAHI AATA.",
+          "reasoning": "Keyword rules matched 'safai'; category score 2.8 vs runner-up 'road' 0.0; priority score 2.8 from months unresolved, written in capitals. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "safai"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.1,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "waste",
+          "priority": "critical",
+          "confidence": 0.9664,
+          "is_emergency": true,
+          "summary": "Waste & Sanitation issue (critical priority): MERI GALI ME KOI SAFAI WALA NAHI AATA.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'waste' at p=0.97 (runner-up 'electricity' p=0.02); priority model predicted 'critical' at p=0.35.",
+          "keywords": [
+            "mahino",
+            "jharoo",
+            "insaan",
+            "safai",
+            "meri",
+            "gali"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.9,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "No sweeper has cleaned the lane for months, leaving it unswept and neglected.",
+          "reasoning": "'Safai wala' and 'jharoo' refer to cleaning and sweeping, indicating solid waste management. Months of neglect affects the lane but no specific harm or vulnerable population is mentioned, so medium.",
+          "keywords": [
+            "safai",
+            "jharoo",
+            "gali",
+            "mahino"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2509.2,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G32",
+      "text": "The speed breaker near the school has broken and has sharp metal edges sticking out. A school van tyre burst on it yesterday.",
+      "expected_category": "road",
+      "expected_priority": "high",
+      "note": "Road furniture damage, school, near-miss.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.5513,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: The speed breaker near the school has broken and has sharp metal edges sticking out.",
+          "reasoning": "Keyword rules matched 'speed breaker'; category score 2.8 vs runner-up 'water' 0.0; priority score 2.6 from school nearby. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "speed breaker"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.9,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.997,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (high priority): The speed breaker near the school has broken and has sharp metal edges sticking out.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=1.00 (runner-up 'water' p=0.00); priority model predicted 'high' at p=0.75.",
+          "keywords": [
+            "yesterday",
+            "sticking",
+            "breaker",
+            "school",
+            "broken",
+            "speed"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 10.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "road",
+          "priority": "critical",
+          "confidence": 0.95,
+          "is_emergency": true,
+          "summary": "Broken speed breaker with sharp metal edges near a school caused a school van tyre burst yesterday.",
+          "reasoning": "'Speed breaker' and 'broken' with 'sharp metal edges' indicate road infrastructure damage. A school van tyre burst shows an incident has occurred, and a school is adjacent, so critical.",
+          "keywords": [
+            "speed breaker",
+            "broken",
+            "sharp metal",
+            "school",
+            "tyre burst"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2163.2,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    },
+    {
+      "id": "G33",
+      "text": "Our electricity meter reading is being estimated every month and the bill is impossible to pay. Nobody comes to take the actual reading.",
+      "expected_category": "electricity",
+      "expected_priority": "medium",
+      "note": "Billing dispute follows its utility -> electricity.",
+      "tiers": {
+        "rules": {
+          "category": "electricity",
+          "priority": "medium",
+          "confidence": 0.6131,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue reported: Our electricity meter reading is being estimated every month and the bill is impossible to pay.",
+          "reasoning": "Keyword rules matched 'electricity', 'meter'; category score 4.6 vs runner-up 'road' 0.0; priority score 1.2 from months mentioned. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "electricity",
+            "meter"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "electricity",
+          "priority": "medium",
+          "confidence": 0.9988,
+          "is_emergency": false,
+          "summary": "Electricity & Streetlights issue (medium priority): Our electricity meter reading is being estimated every month and the bill is impossible to pay.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'electricity' at p=1.00 (runner-up 'water' p=0.00); priority model predicted 'medium' at p=0.55.",
+          "keywords": [
+            "electricity",
+            "impossible",
+            "estimated",
+            "reading",
+            "nobody",
+            "actual"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "electricity",
+          "priority": "medium",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Electricity meter readings are estimated monthly, producing unaffordable bills because no one takes actual readings.",
+          "reasoning": "The complaint explicitly mentions 'electricity meter' and billing, which maps to electricity by rule 9. It is a billing dispute with no immediate danger, so medium priority.",
+          "keywords": [
+            "electricity",
+            "meter",
+            "reading",
+            "estimated",
+            "bill"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2334.2,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G34",
+      "text": "There is construction malba dumped on the empty plot beside our house. It has been there for three weeks and snakes have started coming out of it.",
+      "expected_category": "waste",
+      "expected_priority": "high",
+      "note": "Construction debris dumping, safety consequence.",
+      "tiers": {
+        "rules": {
+          "category": "waste",
+          "priority": "medium",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue reported: There is construction malba dumped on the empty plot beside our house.",
+          "reasoning": "Keyword rules matched 'malba', 'dumped'; category score 5.4 vs runner-up 'road' 0.0; priority score 1.4 from weeks unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "malba",
+            "dumped"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.6,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.9964,
+          "is_emergency": false,
+          "summary": "Waste & Sanitation issue (high priority): There is construction malba dumped on the empty plot beside our house.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'waste' at p=1.00 (runner-up 'safety' p=0.00); priority model predicted 'high' at p=0.69.",
+          "keywords": [
+            "construction",
+            "started",
+            "dumped",
+            "beside",
+            "snakes",
+            "coming"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.9,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "waste",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Construction debris dumped on an empty plot for three weeks is attracting snakes near a residence.",
+          "reasoning": "'Malba' means construction debris, which is solid waste. Three weeks of accumulation and a disease/pest vector (snakes) affecting a residence raises it to high; no injury yet so not critical.",
+          "keywords": [
+            "malba",
+            "plot",
+            "three weeks",
+            "snakes"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2363.1,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G35",
+      "text": "An illegal gas cylinder refilling shop is operating in the middle of the crowded market. If it catches fire the whole block will go.",
+      "expected_category": "safety",
+      "expected_priority": "critical",
+      "note": "Explosion risk in a crowded area.",
+      "tiers": {
+        "rules": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.5581,
+          "is_emergency": true,
+          "summary": "Public Safety issue reported: An illegal gas cylinder refilling shop is operating in the middle of the crowded market.",
+          "reasoning": "Keyword rules matched 'gas cylinder'; category score 3.0 vs runner-up 'road' 0.0; priority score 9.0 from gas cylinder hazard, fire risk, whole area affected, public place. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "gas cylinder"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.9896,
+          "is_emergency": true,
+          "summary": "Public Safety issue (critical priority): An illegal gas cylinder refilling shop is operating in the middle of the crowded market.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=0.99 (runner-up 'road' p=0.01); priority model predicted 'high' at p=0.71. Priority escalated from 'high' to 'critical' by the deterministic hazard rules (gas cylinder hazard, fire risk, whole area affected); the rules may only raise priority, never lower it.",
+          "keywords": [
+            "refilling",
+            "operating",
+            "cylinder",
+            "illegal",
+            "crowded",
+            "catches"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 6.9,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "safety",
+          "priority": "critical",
+          "confidence": 0.95,
+          "is_emergency": true,
+          "summary": "Illegal gas cylinder refilling shop in a crowded market poses an immediate explosion and fire risk to the whole block.",
+          "reasoning": "'Illegal gas cylinder refilling' is an explosive hazard not covered by other categories, so it is safety. The risk of fire destroying a crowded block is an immediate life threat, making it critical.",
+          "keywords": [
+            "illegal",
+            "gas cylinder",
+            "refilling",
+            "market",
+            "fire"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2241.8,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G36",
+      "text": "hamare area me pani ka tanker mafia paise mangta hai. sarkari supply band kar di gayi hai jaan buch kar.",
+      "expected_category": "water",
+      "expected_priority": "high",
+      "note": "Roman-Urdu. Water supply denial / tanker mafia.",
+      "tiers": {
+        "rules": {
+          "category": "water",
+          "priority": "medium",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Water Supply & Leakage issue reported: hamare area me pani ka tanker mafia paise mangta hai.",
+          "reasoning": "Keyword rules matched 'pani', 'tanker'; category score 5.0 vs runner-up 'road' 0.0; priority score 0.0. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "pani",
+            "tanker"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.2,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.6255,
+          "is_emergency": false,
+          "summary": "Other issue (medium priority): hamare area me pani ka tanker mafia paise mangta hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'other' at p=0.63 (runner-up 'water' p=0.37); priority model predicted 'medium' at p=0.40.",
+          "keywords": [
+            "sarkari",
+            "hamare",
+            "tanker",
+            "mangta",
+            "supply",
+            "mafia"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.0,
+          "category_correct": false,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "water",
+          "priority": "high",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Water tanker mafia demanding money in the area while government supply is deliberately cut off.",
+          "reasoning": "'Pani ka tanker mafia' and 'sarkari supply band' clearly indicate a clean water supply issue, so category is water. Deliberate supply cut affecting an area is high priority.",
+          "keywords": [
+            "pani",
+            "tanker",
+            "mafia",
+            "sarkari supply",
+            "band"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 3315.9,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G37",
+      "text": "The drain cover outside house number 22 is cracked. It still works but should be replaced at some point during routine maintenance.",
+      "expected_category": "drainage",
+      "expected_priority": "low",
+      "note": "Minor, explicitly routine.",
+      "tiers": {
+        "rules": {
+          "category": "drainage",
+          "priority": "low",
+          "confidence": 0.5581,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue reported: The drain cover outside house number 22 is cracked.",
+          "reasoning": "Keyword rules matched 'drain'; category score 3.0 vs runner-up 'road' 0.0; priority score -2.0 from routine request. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "drain"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.3,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "drainage",
+          "priority": "low",
+          "confidence": 0.9499,
+          "is_emergency": false,
+          "summary": "Drainage & Sewerage issue (low priority): The drain cover outside house number 22 is cracked.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'drainage' at p=0.95 (runner-up 'electricity' p=0.05); priority model predicted 'low' at p=0.62.",
+          "keywords": [
+            "maintenance",
+            "replaced",
+            "outside",
+            "cracked",
+            "routine",
+            "number"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 7.2,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "drainage",
+          "priority": "low",
+          "confidence": 0.7,
+          "is_emergency": false,
+          "summary": "Cracked drain cover outside house 22, functional but needs replacement during routine maintenance.",
+          "reasoning": "The complaint mentions a 'drain cover' which is part of the drainage system, and the citizen explicitly says it can wait for routine maintenance, so priority is low.",
+          "keywords": [
+            "drain cover",
+            "cracked",
+            "house 22",
+            "routine maintenance"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2279.0,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G38",
+      "text": "Rash driving by mini buses on our residential lane has caused three near misses with children this month. They do not slow down at all.",
+      "expected_category": "safety",
+      "expected_priority": "high",
+      "note": "Traffic danger to children, no injury yet.",
+      "tiers": {
+        "rules": {
+          "category": "safety",
+          "priority": "high",
+          "confidence": 0.5581,
+          "is_emergency": false,
+          "summary": "Public Safety issue reported: Rash driving by mini buses on our residential lane has caused three near misses with children this month.",
+          "reasoning": "Keyword rules matched 'rash driving'; category score 3.0 vs runner-up 'road' 0.0; priority score 3.2 from children affected, months mentioned. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "rash driving"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 2.5,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "ml": {
+          "category": "safety",
+          "priority": "high",
+          "confidence": 0.9953,
+          "is_emergency": false,
+          "summary": "Public Safety issue (high priority): Rash driving by mini buses on our residential lane has caused three near misses with children this month.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'safety' at p=1.00 (runner-up 'waste' p=0.00); priority model predicted 'high' at p=0.66.",
+          "keywords": [
+            "residential",
+            "children",
+            "driving",
+            "caused",
+            "misses",
+            "buses"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.0,
+          "category_correct": true,
+          "priority_correct": true
+        },
+        "llm": {
+          "category": "safety",
+          "priority": "high",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Rash mini-bus driving on a residential lane caused three near misses with children this month.",
+          "reasoning": "'Rash driving' and 'near misses with children' are a threat to people not covered by other categories, so safety. Children are specifically affected and the pattern is ongoing, so high.",
+          "keywords": [
+            "rash driving",
+            "mini buses",
+            "residential lane",
+            "near misses",
+            "children"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 3402.9,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G39",
+      "text": "The government dispensary in our area opens only twice a week without any notice and the staff refuse to register walk-in patients.",
+      "expected_category": "other",
+      "expected_priority": "medium",
+      "note": "Public service failure, no category fits.",
+      "tiers": {
+        "rules": {
+          "category": "other",
+          "priority": "high",
+          "confidence": 0.5444,
+          "is_emergency": false,
+          "summary": "Other issue reported: The government dispensary in our area opens only twice a week without any notice and the staff refuse to register walk-in patients.",
+          "reasoning": "Keyword rules matched 'dispensary'; category score 2.6 vs runner-up 'road' 0.0; priority score 5.8 from hospital nearby, vulnerable people, weeks unresolved. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "dispensary"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 1.4,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "other",
+          "priority": "high",
+          "confidence": 0.9968,
+          "is_emergency": false,
+          "summary": "Other issue (high priority): The government dispensary in our area opens only twice a week without any notice and the staff refuse to register walk-in patients.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'other' at p=1.00 (runner-up 'water' p=0.00); priority model predicted 'medium' at p=0.55. Priority escalated from 'medium' to 'high' by the deterministic hazard rules (hospital nearby, vulnerable people, weeks unresolved); the rules may only raise priority, never lower it.",
+          "keywords": [
+            "government",
+            "dispensary",
+            "register",
+            "patients",
+            "without",
+            "walk-in"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 9.5,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "other",
+          "priority": "medium",
+          "confidence": 0.9,
+          "is_emergency": false,
+          "summary": "Government dispensary opens only twice a week without notice and refuses walk-in patients.",
+          "reasoning": "The complaint is about a government dispensary's service failure, which fits 'other' as it is not covered by the other categories. No immediate danger or broad impact, so medium priority.",
+          "keywords": [
+            "dispensary",
+            "opens",
+            "twice a week",
+            "staff",
+            "walk-in patients"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2525.7,
+          "category_correct": true,
+          "priority_correct": true
+        }
+      }
+    },
+    {
+      "id": "G40",
+      "text": "road toot gayi hai bilkul, gaari chalana namumkin hai. 2 mahine se koi nahi aaya dekhne. please jaldi theek karwa dain!!!",
+      "expected_category": "road",
+      "expected_priority": "medium",
+      "note": "Roman-Urdu with exclamation intensity. Road damage, no hazard signal.",
+      "tiers": {
+        "rules": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.62,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue reported: road toot gayi hai bilkul, gaari chalana namumkin hai.",
+          "reasoning": "Keyword rules matched 'road', 'road toot', 'toot gayi'; category score 6.4 vs runner-up 'water' 0.0; priority score 3.5 from months unresolved, 3 exclamation marks, says urgent. Deterministic fallback: no language model was used, so this classification is a keyword match, not comprehension.",
+          "keywords": [
+            "road",
+            "road toot",
+            "toot gayi"
+          ],
+          "model_name": "keyword-rules-v1",
+          "latency_ms": 0.4,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "ml": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.9951,
+          "is_emergency": false,
+          "summary": "Roads & Potholes issue (high priority): road toot gayi hai bilkul, gaari chalana namumkin hai.",
+          "reasoning": "Local TF-IDF + LinearSVC model. Category 'road' at p=1.00 (runner-up 'other' p=0.00); priority model predicted 'high' at p=0.50.",
+          "keywords": [
+            "namumkin",
+            "chalana",
+            "bilkul",
+            "mahine",
+            "dekhne",
+            "gaari"
+          ],
+          "model_name": "tfidf-linearsvc-v1",
+          "latency_ms": 3.6,
+          "category_correct": true,
+          "priority_correct": false
+        },
+        "llm": {
+          "category": "road",
+          "priority": "high",
+          "confidence": 0.95,
+          "is_emergency": false,
+          "summary": "Road completely broken and impassable for vehicles, unresolved for two months.",
+          "reasoning": "'Road toot gayi' clearly indicates a damaged road surface, so category is road. Two months of neglect and a main road affected raise it to high, but no injury is reported so it is not critical.",
+          "keywords": [
+            "road",
+            "toot gayi",
+            "gaari",
+            "2 mahine",
+            "jaldi"
+          ],
+          "model_name": "deepseek-v4-flash",
+          "latency_ms": 2604.8,
+          "category_correct": true,
+          "priority_correct": false
+        }
+      }
+    }
+  ],
+  "summary": {
+    "golden_set_size": 40,
+    "tiers_evaluated": [
+      "rules",
+      "ml",
+      "llm"
+    ],
+    "tiers_available": {
+      "rules": true,
+      "ml": true,
+      "llm": true
+    },
+    "per_tier": {
+      "rules": {
+        "n": 40,
+        "category_accuracy": 0.925,
+        "priority_accuracy": 0.725,
+        "priority_within_one_level": 1.0,
+        "priority_under_triaged": 9,
+        "priority_over_triaged": 2,
+        "emergency_recall": 0.875,
+        "emergency_expected": 8,
+        "median_latency_ms": 1.4,
+        "mean_confidence": 0.5507,
+        "model_name": "keyword-rules-v1"
+      },
+      "ml": {
+        "n": 40,
+        "category_accuracy": 0.9,
+        "priority_accuracy": 0.6,
+        "priority_within_one_level": 0.9,
+        "priority_under_triaged": 6,
+        "priority_over_triaged": 10,
+        "emergency_recall": 0.875,
+        "emergency_expected": 8,
+        "median_latency_ms": 8.1,
+        "mean_confidence": 0.8876,
+        "model_name": "tfidf-linearsvc-v1"
+      },
+      "llm": {
+        "n": 40,
+        "category_accuracy": 1.0,
+        "priority_accuracy": 0.775,
+        "priority_within_one_level": 1.0,
+        "priority_under_triaged": 2,
+        "priority_over_triaged": 7,
+        "emergency_recall": 0.875,
+        "emergency_expected": 8,
+        "median_latency_ms": 2137.6,
+        "mean_confidence": 0.8965,
+        "model_name": "deepseek-v4-flash"
+      }
+    },
+    "agreement": {
+      "rules_vs_ml": {
+        "n": 40,
+        "category_agreement": 0.85,
+        "priority_agreement": 0.725
+      },
+      "rules_vs_llm": {
+        "n": 40,
+        "category_agreement": 0.925,
+        "priority_agreement": 0.55
+      },
+      "ml_vs_llm": {
+        "n": 40,
+        "category_agreement": 0.9,
+        "priority_agreement": 0.525
+      }
+    },
+    "all_tiers_agree_on_category": 34,
+    "top_category_errors": [
+      [
+        "road->drainage (rules)",
+        1
+      ],
+      [
+        "road->safety (ml)",
+        1
+      ],
+      [
+        "water->road (rules)",
+        1
+      ],
+      [
+        "other->safety (ml)",
+        1
+      ],
+      [
+        "waste->road (ml)",
+        1
+      ],
+      [
+        "safety->road (rules)",
+        1
+      ],
+      [
+        "water->other (ml)",
+        1
+      ]
+    ]
+  },
+  "available": {
+    "rules": true,
+    "ml": true,
+    "llm": true
+  },
+  "generated_at": "2026-08-08T19:00:52Z"
+}

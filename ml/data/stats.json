@@ -1,0 +1,25 @@
+{
+  "n": 3000,
+  "n_train": 2400,
+  "n_test": 600,
+  "seed": 20260808,
+  "categories": {
+    "drainage": 457,
+    "electricity": 459,
+    "other": 216,
+    "road": 495,
+    "safety": 316,
+    "waste": 556,
+    "water": 501
+  },
+  "priorities": {
+    "critical": 391,
+    "high": 920,
+    "low": 536,
+    "medium": 1153
+  },
+  "roman_urdu_rows": 1127,
+  "mean_chars": 182.5,
+  "min_chars": 36,
+  "max_chars": 387
+}

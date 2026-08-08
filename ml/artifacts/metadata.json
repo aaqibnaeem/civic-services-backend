@@ -1,0 +1,52 @@
+{
+  "model_name": "tfidf-linearsvc-v1",
+  "trained_at": "2026-08-08T18:19:46Z",
+  "seed": 20260808,
+  "sklearn_version": "1.9.0",
+  "python_version": "3.12.13",
+  "n_train": 2400,
+  "n_test": 600,
+  "features": {
+    "word_1_2gram": 3898,
+    "char_wb_3_5gram": 7755,
+    "total": 11653,
+    "shared_between_heads": true
+  },
+  "heads": {
+    "category": {
+      "classes": [
+        "drainage",
+        "electricity",
+        "other",
+        "road",
+        "safety",
+        "waste",
+        "water"
+      ],
+      "fit_seconds": 1.63
+    },
+    "priority": {
+      "classes": [
+        "critical",
+        "high",
+        "low",
+        "medium"
+      ],
+      "fit_seconds": 0.83
+    }
+  },
+  "quick_holdout": {
+    "category": {
+      "holdout_accuracy": 0.7583,
+      "holdout_macro_f1": 0.7396
+    },
+    "priority": {
+      "holdout_accuracy": 0.7417,
+      "holdout_macro_f1": 0.6863
+    }
+  },
+  "artifact_bytes": 771857,
+  "artifact_size_human": "0.74 MB",
+  "train_seconds": 3.01,
+  "training_data": "synthetic (ml/generate_dataset.py) \u2014 see ml/data/DATASET_CARD.md"
+}

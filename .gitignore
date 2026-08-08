@@ -1,0 +1,40 @@
+# --- python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+build/
+dist/
+
+# --- virtualenv / uv ------------------------------------------------------
+.venv/
+venv/
+# NOTE: uv.lock IS committed on purpose — reproducible installs on Render.
+
+# --- environment ----------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- local databases ------------------------------------------------------
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# --- uploads --------------------------------------------------------------
+uploads/
+!uploads/.gitkeep
+
+# --- tooling caches -------------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- editors / os ---------------------------------------------------------
+.DS_Store
+.idea/
+.vscode/
+*.swp
