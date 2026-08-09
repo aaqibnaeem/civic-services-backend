@@ -52,9 +52,11 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 |---|---|---|
 | `admin@civic.gov.pk` | `Admin@123` | admin |
 | `staff@civic.gov.pk` | `Staff@123` | staff (created by the seeder) |
+| `ayesha.siddiqui@example.com` | `civic@123` | citizen (created by the seeder) |
 
 The admin account is created on every startup, so login works even on a fresh,
-unseeded database.
+unseeded database. Every citizen account — seeded or created through the report
+flow — gets the password `civic@123` (`CITIZEN_DEFAULT_PASSWORD`).
 
 ---
 
